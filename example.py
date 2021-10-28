@@ -14,14 +14,10 @@ from findPeaks import findPeaks, read_data, reset_range
 
 def main():
     base_url = "data_spectrum/"
-    endpoint = "SpeciesA_Isolate1-1_110131.txt"
-    endpoint = "210625Co.asc"
+    endpoint = "sample01.asc"
     
-        
-    data = read_data(base_url + endpoint, 8, ',')
-    data = pd.DataFrame(data, columns=['x', 'y'])
+    data = read_data(base_url + endpoint, 3, ',')
     data = reset_range(data, 1600)
-    
     findpeaks = findPeaks(data)
     
     #初期値のリストを作成
@@ -31,7 +27,7 @@ def main():
     guess.append([250, 3400, 10])
 
     #バックグラウンドの初期値
-    background = 5
+    background = 0
 
     #初期値リストの結合
     guess_total = []
@@ -39,19 +35,12 @@ def main():
         guess_total.extend(i)
     guess_total.append(background)
     
-    popt, pcov = curve_fit(findpeaks.exp_func, data.x, data.y, p0=guess_total)
-    peak_x = [popt[i] for i in range(len(popt)) if i % 3 ==1]
-    print(peak_x)
+    popt, pcov = findpeaks.exp_func_fit(*guess_total, mode="g")
+    findpeaks.fit_plot(*popt, func="exp")
     
-    fit = findpeaks.exp_func(*popt)
-    plt.scatter(data.x, data.y, s=20)
-    plt.plot(data.x, fit , ls='-', c='black', lw=1)
-    
-    y_list = findpeaks.exp_fit_plot(*popt)
-    baseline = np.zeros_like(data.x) + popt[-1]
-    for n,i in enumerate(y_list):
-        plt.fill_between(data.x, i, baseline, facecolor=cm.rainbow(n/len(y_list)), alpha=0.6)
-    
+    print(findpeaks.peakxs)
+    print(findpeaks.peakwidth)
+        
     plt.show()
     
 if __name__ == "__main__":
