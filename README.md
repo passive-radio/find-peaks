@@ -13,9 +13,10 @@ x | y
 5 | 11
 ...|...
 
-### Current approximation curve support:
+### Available approximation curve :
 
--exp
+- gaussian function
+- ...
 
 ### Curent supectrum data files supoort:
 .asc .csv .txt
