@@ -1,14 +1,8 @@
-from configparser import BasicInterpolation
-from os import name, read, sep
-
 import matplotlib.pyplot as plt
-import matplotlib.cm as cm
-import pandas as pd
-from pandas.io.clipboards import read_clipboard
-from scipy.optimize import curve_fit
-import numpy as np
 from pprint import pprint
-import csv
+import numpy as np
+
+import pandas as pd
 
 from findPeaks import findPeaks, read_data, reset_range
 
@@ -16,15 +10,15 @@ def main():
     base_url = "data_spectrum/"
     endpoint = "sample01.asc"
     
-    data = read_data(base_url + endpoint, 3, ',')
-    data = reset_range(data, 1600)
+    data_origin = read_data(base_url + endpoint, 3, ',')
+    data = reset_range(data_origin, 1600)
     findpeaks = findPeaks(data)
     
     #初期値のリストを作成
     #[amp,ctr,wid]
     guess = []
-    guess.append([350, 3000, 10])
-    guess.append([250, 3400, 10])
+    guess.append([3000, 350, 10])
+    guess.append([3400, 250, 10])
 
     #バックグラウンドの初期値
     background = 0
@@ -42,6 +36,22 @@ def main():
     print(findpeaks.peakwidth)
         
     plt.show()
+    
+    # data = reset_range(data_origin, 2830, 3240)
+    # findpeaks = findPeaks(data)
+    
+    # data = [[0, 100],[3, 10], [6, 0], [10, 20], [12, 80]]
+    # data = pd.DataFrame(data, columns=["x", "y"])
+    # findpeaks=findPeaks(data)
+    
+    test_params = [3000, 0.1, 3400, 0.1, 0]
+    popt,pcov = findpeaks.plynomi_func_fit(*test_params, deg=3, mode="g")
+    print(popt)
+    findpeaks.fit_plot(*popt, func="poly", deg=3)
+    # np.set_printoptions(threshold=np.inf)
+    # print(popt)
+    plt.show()
+    
     
 if __name__ == "__main__":
     main()
