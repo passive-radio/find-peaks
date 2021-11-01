@@ -13,8 +13,13 @@ x | y
 5 | 11
 ...|...
 
+### Available approximation curve :
+
+- gaussian function
+- ...
+
 ### Curent supectrum data files supoort:
-None
+.asc .csv .txt
 
 ### Future suepctrum data files support:
 .asc .csv .xlsx .xls .pickle .txt .html(table)
