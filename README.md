@@ -23,3 +23,6 @@ x | y
 
 ### Future suepctrum data files support:
 .asc .csv .xlsx .xls .pickle .txt .html(table)
+
+### AI peak guess
+under development
