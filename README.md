@@ -16,7 +16,7 @@ x | y
 ### Available approximation curve :
 
 - gaussian function
-- ...
+- polynomial function
 
 ### Curent supectrum data files supoort:
 .asc .csv .txt
