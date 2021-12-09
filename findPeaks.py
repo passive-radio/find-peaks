@@ -235,8 +235,14 @@ class findPeaks(object):
     @property
     def peakxs(self):
         popt = self.popt
-        peakxs = [popt[i] for i in range(len(popt)) if i % 3 ==1]
+        peakxs = [popt[i] for i in range(len(popt)) if i % 3 ==0]
         return peakxs
+    
+    @property
+    def peakys(self):
+        popt = self.popt
+        peakys = [popt[i] for i in range(len(popt)) if i % 3 ==1]
+        return peakys
     
     @property
     def peakwidth(self):
