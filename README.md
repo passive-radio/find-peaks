@@ -1,7 +1,8 @@
 # find-peaks
-find optional number of peaks( return x and y val of each peaks of any spectrum data files)
+This repository focuses on finding peaks.
+findPeaks can find optional number of peaks and return x,y of each peaks from variety of spectrum data.
 
-### spectrum data format should be like
+### [spectrum data format should be like]
 
 x | y
 --- | ---
@@ -13,16 +14,26 @@ x | y
 5 | 11
 ...|...
 
-### Available approximation curve :
+### <b>[New Feature!]</b>
+
+#### <b> Interactive peak determine </b>
+Now you can obtain x,y of a peak with the help of interactive peak guession!
+
+![interactive peak guession](sample/interactive.png)
+![results](sample/peak_found.png)
+
+### [Available approximation curve]
 
 - gaussian function
 - polynomial function
 
-### Curent supectrum data files supoort:
+### [Curent supectrum data files supoort]
 .asc .csv .txt
 
-### Future suepctrum data files support:
+### [Future suepctrum data files support]
 .asc .csv .xlsx .xls .pickle .txt .html(table)
 
-### AI peak guess
-under development
+### [Future features!]
+
+* AI peak guess
+* interactive peak determine
