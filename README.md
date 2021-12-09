@@ -1,6 +1,6 @@
-# find-peaks
-This repository focuses on finding peaks.
-findPeaks can find optional number of peaks and return x,y of each peaks from variety of spectrum data.
+# iFindPeaks
+This project focuses on finding peaks.
+iFindPeaks can find optional number of peaks and return x,y of each peaks from the variety of spectrum data.
 
 ### [spectrum data format should be like]
 
