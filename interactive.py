@@ -11,6 +11,10 @@ y_list = []
 
 X_SCALE = 200
 Y_SCALE = 30
+count = 0
+band = 0
+left = 0
+right = 0
 
 def draw_test():
     
@@ -66,31 +70,51 @@ def plot_test(data, x_list, y_list):
     
     x_peaks = []
     y_peaks = []
+    
     def motion(event):
-        count = 0
+        is_click_off = False
+        global count
+        global band
+        global left
+        global right
+        
         if (event.xdata is  None) or (event.ydata is  None):
             return
         
-        if event.button == 1 and count==0:
+        if event.button == 1 and count == 0:
+            count = 1
             x = event.xdata
             y = event.ydata
-            count = 1
             
             x_peaks.append(x)
             y_peaks.append(y)
-            plt.title(f"peak selected! at ({int(x)},{int(y)})")
+            plt.title(f"Peak selected! at ({int(x)},{int(y)})")
+            ax.text(10, 1, "Next, Please select the bandwidth by clicking the edge of the peak! (left->right)")
+            
+            
+        elif event.button == 1 and count == 1:
+            left = event.xdata
+            count =2
+            
+        elif event.button == 1 and count == 2:
+            right = event.xdata
+            band = abs(left- right)
+            plt.title(f"Bandwidth selected!: {band}")
             
         plt.draw()
     
-    plt.figure()
+    fig = plt.figure()
+    ax = fig.add_subplot()
+    # plt.figure()
+    plt.title("Please click the top of the peak")
     plt.connect('button_press_event', motion)
     plt.scatter(x_list, y_list)
     plt.show()
     
     print("-"*30)
     print("Pointed peak!")
-    print("x y")
-    print(x_peaks[0], y_peaks[0])
+    print("x y bandwidth")
+    print(x_peaks[0], y_peaks[0], band)
     print("-"*30)
         
     #data = reset_range(data_origin, 1600)
@@ -99,7 +123,7 @@ def plot_test(data, x_list, y_list):
     #初期値のリストを作成
     #[amp,ctr,wid]
     guess = []
-    guess.append([y_peaks[0], x_peaks[0], 30])
+    guess.append([y_peaks[0], x_peaks[0], band])
 
     #バックグラウンドの初期値
     background = 0
