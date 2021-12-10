@@ -19,8 +19,8 @@ x | y
 #### <b> Interactive peak determine </b>
 Now you can obtain x,y of a peak with the help of interactive peak guession!
 
-![interactive peak guession](sample/interactive.png)
-![results](sample/peak_found.png)
+![interactive peak guession](img/interactive.png)
+![results](img/peak_found.png)
 
 ### [Available approximation curve]
 
