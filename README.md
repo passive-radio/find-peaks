@@ -17,7 +17,7 @@ x | y
 ### <b>[New Feature!]</b>
 
 #### <b> Interactive peak determination </b>
-Now you can obtain x,y of a peak with the help of interactive peak guession!
+Now you can obtain x,y of a peak with the help of interactive peak guess!
 
 ![interactive peak guession](img/interactive.png)
 ![results](img/peak_found.png)
