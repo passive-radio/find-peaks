@@ -57,13 +57,16 @@ def draw_test():
     print(list)
     list = np.array(list)
 
-    path = "pos.csv"
+    path = "test.csv"
 
     with open(path, 'w', newline='') as file:
         mywriter = csv.writer(file, delimiter=',')
         mywriter.writerows(list)
         
 def plot_test(data, x_list, y_list):
+    
+    x_list = data.x
+    y_list = data.y
     
     # print(xy_list)
     #xy_list = np.array(xy_list, dtype="float")
@@ -91,7 +94,7 @@ def plot_test(data, x_list, y_list):
             x_peaks.append(x)
             y_peaks.append(y)
             plt.title(f"Peak selected! at ({int(x)},{int(y)})")
-            texts.append(ax.text(1, 1, "Next, Please select the bandwidth by clicking the edge of the peak! (left->right)"))
+            texts.append(ax.text(100, 30, "Next, Please select the bandwidth by clicking the edge of the peak! (left->right)"))
             
         elif event.button == 1 and count == 1:
             left = event.xdata
@@ -102,7 +105,7 @@ def plot_test(data, x_list, y_list):
             band = abs(left- right)
             texts[0].remove()
             plt.title(f"Bandwidth selected!: {band}")
-            ax.text(1, 1, "You can now close this window!")
+            ax.text(100, 30, "You can now close this window!")
             
         plt.draw()
     
@@ -110,7 +113,7 @@ def plot_test(data, x_list, y_list):
     ax = fig.add_subplot()
     plt.title("Please click the top of the peak! :)")
     plt.connect('button_press_event', motion)
-    plt.scatter(x_list, y_list)
+    plt.scatter(x_list, y_list, s=2)
     plt.show()
     
     print("-"*30)
@@ -146,21 +149,29 @@ def plot_test(data, x_list, y_list):
     print("-"*30)
         
     plt.show()
-
+    
+def seeSpectrum(data):
+    
+    x_list = data.x
+    y_list = data.y
+    
+    plt.title("")
+    plt.scatter(x_list, y_list, s=2)
+    plt.show()
+    
 if __name__ == "__main__":
     
-    base_url = ""
-    endpoint = "pos.csv"
+    base_url = "sample_data/"
+    endpoint = "sample02.csv"
     
-    x_list = []
-    y_list = []
-    
-    with open(base_url+endpoint, 'r', newline='') as file:
-        csv_val = csv.reader(file, delimiter=',')
-        for row in csv_val:
-            x_list.append(float(row[0]))
-            y_list.append(float(row[1]))
+    # x_list = []
+    # y_list = []
+    # with open(base_url+endpoint, 'r', newline='') as file:
+    #     csv_val = csv.reader(file, delimiter=',')
+    #     for row in csv_val:
+    #         x_list.append(float(row[0]))
+    #         y_list.append(float(row[1]))
     
     data= read_data(base_url + endpoint, 0, ',')
     
-    plot_test(data, x_list, y_list)
+    plot_test(data)
