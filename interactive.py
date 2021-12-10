@@ -15,6 +15,7 @@ count = 0
 band = 0
 left = 0
 right = 0
+texts = []
 
 def draw_test():
     
@@ -77,6 +78,7 @@ def plot_test(data, x_list, y_list):
         global band
         global left
         global right
+        global texts
         
         if (event.xdata is  None) or (event.ydata is  None):
             return
@@ -89,8 +91,7 @@ def plot_test(data, x_list, y_list):
             x_peaks.append(x)
             y_peaks.append(y)
             plt.title(f"Peak selected! at ({int(x)},{int(y)})")
-            ax.text(10, 1, "Next, Please select the bandwidth by clicking the edge of the peak! (left->right)")
-            
+            texts.append(ax.text(1, 1, "Next, Please select the bandwidth by clicking the edge of the peak! (left->right)"))
             
         elif event.button == 1 and count == 1:
             left = event.xdata
@@ -99,14 +100,15 @@ def plot_test(data, x_list, y_list):
         elif event.button == 1 and count == 2:
             right = event.xdata
             band = abs(left- right)
+            texts[0].remove()
             plt.title(f"Bandwidth selected!: {band}")
+            ax.text(1, 1, "You can now close this window!")
             
         plt.draw()
     
     fig = plt.figure()
     ax = fig.add_subplot()
-    # plt.figure()
-    plt.title("Please click the top of the peak")
+    plt.title("Please click the top of the peak! :)")
     plt.connect('button_press_event', motion)
     plt.scatter(x_list, y_list)
     plt.show()
