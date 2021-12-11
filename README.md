@@ -22,7 +22,7 @@ Now you can obtain x,y of a peak with the help of interactive peak guess!
 ![interactive peak guession](img/interactive.png)
 ![results](img/peak_found.png)
 
-### <b> bmp imgae file to csv converting </b>
+### <b> bmp image file to csv converting </b>
 You can now directly find peaks from images(holds any spectrum information) with interactive.py without additional hassle of converting bmp image into csv file.
 
 Notice: file format of the image must be bmp(.bmp, .jpg, .png, .jpeg). vector images isn't supported!
