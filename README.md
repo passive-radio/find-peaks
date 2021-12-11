@@ -2,7 +2,7 @@
 This project focuses on finding peaks.
 iFindPeaks can find optional number of peaks and return x,y of each peaks from the variety of spectrum data.
 
-### [spectrum data format should be like]
+### [spectrum data format must be like the table below]
 
 x | y
 --- | ---
@@ -16,11 +16,16 @@ x | y
 
 ### <b>[New Feature!]</b>
 
-#### <b> Interactive peak determine </b>
-Now you can obtain x,y of a peak with the help of interactive peak guession!
+#### <b> Interactive peak determination </b>
+Now you can obtain x,y of a peak with the help of interactive peak guess!
 
-![interactive peak guession](sample/interactive.png)
-![results](sample/peak_found.png)
+![interactive peak guession](img/interactive.png)
+![results](img/peak_found.png)
+
+### <b> bmp imgae file to csv converting </b>
+You can now directly find peaks from images(holds any spectrum information) with interactive.py without additional hassle of converting bmp image into csv file.
+
+Notice: file format of the image must be bmp(.bmp, .jpg, .png, .jpeg). vector images isn't supported!
 
 ### [Available approximation curve]
 
@@ -28,12 +33,14 @@ Now you can obtain x,y of a peak with the help of interactive peak guession!
 - polynomial function
 
 ### [Curent supectrum data files supoort]
-.asc .csv .txt
+.asc .csv .txt 
+bmp formatted image(.bmp .jpg .png .jpeg)
 
 ### [Future suepctrum data files support]
-.asc .csv .xlsx .xls .pickle .txt .html(table)
+Excel sheet
+table of html
 
 ### [Future features!]
 
-* AI peak guess
-* interactive peak determine
+* AI peak shape guess
+* interactive peak determination (under development!)
