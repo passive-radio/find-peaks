@@ -33,14 +33,14 @@ Notice: file format of the image must be bmp(.bmp, .jpg, .png, .jpeg). vector im
 - polynomial function
 
 ### [Curent supectrum data files supoort]
-.asc .csv .txt 
-bmp formatted image(.bmp .jpg .png .jpeg)
+* .asc .csv .txt (ascii file)
+* bmp formatted image(.bmp .jpg .png .jpeg)
 
 ### [Future suepctrum data files support]
-Excel sheet
-table of html
+* Excel sheet
+* table of html
 
 ### [Future features!]
 
 * AI peak shape guess
-* interactive peak determination (under development!)
+* interactive peak determination (under development! you can try a little bit of this func with interactive.py)
