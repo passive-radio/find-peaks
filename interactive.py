@@ -63,7 +63,7 @@ def draw_test():
         mywriter = csv.writer(file, delimiter=',')
         mywriter.writerows(list)
         
-def plot_test(data, x_list, y_list):
+def plot_test(data):
     
     x_list = data.x
     y_list = data.y
@@ -128,7 +128,7 @@ def plot_test(data, x_list, y_list):
     #初期値のリストを作成
     #[amp,ctr,wid]
     guess = []
-    guess.append([y_peaks[0], x_peaks[0], band])
+    guess.append([x_peaks[0], y_peaks[0], band])
 
     #バックグラウンドの初期値
     background = 0
@@ -173,5 +173,5 @@ if __name__ == "__main__":
     #         y_list.append(float(row[1]))
     
     data= read_data(base_url + endpoint, 0, ',')
-    
+        
     plot_test(data)

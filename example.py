@@ -1,4 +1,4 @@
-from findPeaks import read_data
+from findPeaks import read_data, reset_range
 from interactive import plot_test, seeSpectrum
 from bmpToCSV import bmpToCSV
 
@@ -23,5 +23,6 @@ if __name__ == "__main__":
     
     data= read_data(base_url + endpoint, 0, ',')
     
+    #data = reset_range(data, 260, 330)
     plot_test(data)
-    # seeSpectrum(data)
+    #seeSpectrum(data)
