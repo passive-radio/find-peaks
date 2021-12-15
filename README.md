@@ -17,15 +17,17 @@ x | y
 ### <b>[New Feature!]</b>
 
 #### <b> Interactive peak determination </b>
-Now you can obtain x,y of a peak with the help of interactive peak guess!
+Now you can obtain x,y of each peak on the spectrum with [interactive.py](interactive.py)
 
-![interactive peak guession](img/interactive.png)
+![interactive peak guessing](img/interactive_step1.png)
+![selecting another peak](img/interactive_another_peak.png)
 ![results](img/peak_found.png)
 
-### <b> bmp image file to csv converting </b>
-You can now directly find peaks from images(holds any spectrum information) with interactive.py without additional hassle of converting bmp image into csv file.
 
-Notice: file format of the image must be bmp(.bmp, .jpg, .png, .jpeg). vector images isn't supported!
+### <b> bmp image file to csv converting </b>
+You can now directly find peaks from the image(holds any spectrum information) by [interacive.py](interactive.py) without additional hassle of converting bmp images into csv files.
+
+Notice: file format of the image must be bmp(.bmp, .jpg, .png, .jpeg). Vector format isn't supported!
 
 ### [Available approximation curve]
 
@@ -33,8 +35,8 @@ Notice: file format of the image must be bmp(.bmp, .jpg, .png, .jpeg). vector im
 - polynomial function
 
 ### [Curent supectrum data files supoort]
-* .asc .csv .txt (ascii file)
-* bmp formatted image(.bmp .jpg .png .jpeg)
+* ascii file(.asc .csv .txt etc..)
+* bmp formatted image(.bmp .jpg .png .jpeg etc..)
 
 ### [Future suepctrum data files support]
 * Excel sheet
