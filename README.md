@@ -22,7 +22,7 @@ Now you can obtain x,y of a peak with the help of interactive peak guess!
 ![interactive peak guession](img/interactive.png)
 ![results](img/peak_found.png)
 
-### <b> bmp imgae file to csv converting </b>
+### <b> bmp image file to csv converting </b>
 You can now directly find peaks from images(holds any spectrum information) with interactive.py without additional hassle of converting bmp image into csv file.
 
 Notice: file format of the image must be bmp(.bmp, .jpg, .png, .jpeg). vector images isn't supported!
@@ -33,14 +33,14 @@ Notice: file format of the image must be bmp(.bmp, .jpg, .png, .jpeg). vector im
 - polynomial function
 
 ### [Curent supectrum data files supoort]
-.asc .csv .txt 
-bmp formatted image(.bmp .jpg .png .jpeg)
+* .asc .csv .txt (ascii file)
+* bmp formatted image(.bmp .jpg .png .jpeg)
 
 ### [Future suepctrum data files support]
-Excel sheet
-table of html
+* Excel sheet
+* table of html
 
 ### [Future features!]
 
 * AI peak shape guess
-* interactive peak determination (under development!)
+* interactive peak determination (under development! you can try a little bit of this func with interactive.py)
