@@ -53,9 +53,9 @@ def draw_test(file_path, mode):
         list.append([x_list[i], y_list[i]])
         
         
-    plt.plot(x_list, y_list)
+    # plt.plot(x_list, y_list)
 
-    plt.show()
+    #plt.show()
 
     print(list)
     list = np.array(list)
@@ -129,7 +129,7 @@ def plot_test(data):
             ax.text(100, 30, "You can now close this window!")
         
         if event.button == 3 and count == 2:
-            plt.title(f"now selected nother peak!")
+            plt.title(f"Now, select next peak!")
             peak_count += 1
             count = 0
             
@@ -142,11 +142,7 @@ def plot_test(data):
     plt.scatter(x_list, y_list, s=2)
     plt.show()
     
-    print("-"*30)
-    print("Pointed peak!")
-    print("x y bandwidth")
-    print(x_peaks[0], y_peaks[0], bands[0])
-    print("-"*30)
+    
         
     #data = reset_range(data_origin, 1600)
     findpeaks = findPeaks(data)
@@ -173,12 +169,20 @@ def plot_test(data):
     popt, pcov = findpeaks.exp_func_fit(*guess_total, mode="g")
     findpeaks.fit_plot(*popt, func="exp")
     
-    print("-"*30)
-    print("Fitting results!")
-    print("x y width")
-    print(findpeaks.peakxs[0], findpeaks.peakys[0], findpeaks.peakwidth[0])
-    print("-"*30)
+    
+    for i in range(len(x_peaks)):
         
+        print("Fitting results")
+        print("-"*30)
+        print(f"Pointed peak {i}")
+        print("x y bandwidth")
+        print(x_peaks[i], y_peaks[i], bands[i])
+        print("Fitting results")
+        print("x y width")
+        print(findpeaks.peakxs[i], findpeaks.peakys[i], findpeaks.peakwidth[i])
+        print("-"*30)
+    
+
     plt.show()
     
 def seeSpectrum(data):
