@@ -126,7 +126,7 @@ def plot_test(data):
             bands.append(band)
             #texts[peak_count].remove()
             plt.title(f"Bandwidth selected!: {band}")
-            ax.text(100, 30, "You can now close this window!")
+            ax.text(100, 30, "You can now close this window! or right-click for marking another peak!")
         
         if event.button == 3 and count == 2:
             plt.title(f"Now, select next peak!")
