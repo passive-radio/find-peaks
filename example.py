@@ -1,3 +1,4 @@
+from matplotlib.pyplot import draw
 from pandas.core import base
 from findPeaks import read_data, reset_range
 from interactive import click_guess, drag_guess, seeSpectrum, draw_test
@@ -18,5 +19,7 @@ if __name__ == "__main__":
     
     data= read_data(base_url + endpoint, 0, ',')
     
+    data = draw_test(base_url + "sample.csv", mode="wrd")
+        
     drag_guess(data)            # select the peak pos by mouse dragging and wrapping each peaks
-    click_guess(data)           # select the peak pos by clicking the edge of each peaks
+    # click_guess(data)           # select the peak pos by clicking the edge of each peaks
