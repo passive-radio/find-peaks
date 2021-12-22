@@ -83,7 +83,7 @@ def draw_test(file_path, mode):
 
 
             
-def click_guess(data):
+def click_guess(data, background):
     
     x_list = data.x
     y_list = data.y
@@ -165,9 +165,6 @@ def click_guess(data):
             print(e)
             pass
 
-    #バックグラウンドの初期値
-    background = 0
-
     #初期値リストの結合
     guess_total = []
     for i in guess:
@@ -175,28 +172,31 @@ def click_guess(data):
     guess_total.append(background)
     
     popt, pcov = findpeaks.exp_func_fit(*guess_total, mode="g")
+    #curve_fitが動いている
     findpeaks.fit_plot(*popt, func="exp")
     
     peaks = []
     
     for i in range(len(x_peaks)):
         
-        peaks.append([x_peaks[i], y_peaks[i], bands[i]])
+        peaks.append([x_peaks[i], y_peaks[i], bands[i], popt[-1]])
         
         print(f"Fitting result #{i+1}")
         print("-"*30)
         print("x y bandwidth (your guess)")
-        print(x_peaks[i], y_peaks[i], bands[i])
-        print("x y bandwidth (Fitting result)")
-        print(findpeaks.peakxs[i], findpeaks.peakys[i], findpeaks.peakwidth[i])
+        print(x_peaks[i], y_peaks[i], bands[i], background)
+        print("x y bandwidth background (Fitting result)")
+        print(findpeaks.peakxs[i], findpeaks.peakys[i], findpeaks.peakwidth[i], popt[-1])
         print("-"*30)
+    
+    # write peaks onto csv file
     
     plt.show()
     
-    peaks = pd.DataFrame(peaks, columns=["x", "y", "width"])
+    peaks = pd.DataFrame(peaks, columns=["x", "y", "width", "background"])
     return peaks
     
-def drag_guess(data):
+def drag_guess(data, background):
     
     x_list = data.x
     y_list = data.y
@@ -366,7 +366,6 @@ def drag_guess(data):
             pass
 
     #バックグラウンドの初期値
-    background = 0
 
     #初期値リストの結合
     guess_total = []
@@ -381,22 +380,24 @@ def drag_guess(data):
     
     for i in range(len(x_peaks)):
         
-        peaks.append([x_peaks[i], y_peaks[i], bands[i]])
+        peaks.append([x_peaks[i], y_peaks[i], bands[i], popt[-1]])
         
         print(f"Fitting result #{i+1}")
         print("-"*30)
         print("x y bandwidth (your guess)")
-        print(x_peaks[i], y_peaks[i], bands[i])
-        print("x y bandwidth (Fitting result)")
-        print(findpeaks.peakxs[i], findpeaks.peakys[i], findpeaks.peakwidth[i])
+        print(x_peaks[i], y_peaks[i], bands[i], background)
+        print("x y bandwidth background (Fitting result)")
+        print(findpeaks.peakxs[i], findpeaks.peakys[i], findpeaks.peakwidth[i], popt[-1])
         print("-"*30)
+    
+    # write peaks onto csv file
     
     plt.show()
     
-    peaks = pd.DataFrame(peaks, columns=["x", "y", "width"])
+    peaks = pd.DataFrame(peaks, columns=["x", "y", "width", "background"])
     return peaks
     
-    
+
 def seeSpectrum(data):
     
     x_list = data.x
