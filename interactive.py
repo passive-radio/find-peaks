@@ -82,8 +82,7 @@ def draw_test(file_path, mode):
         return file_path
 
 
-            
-def click_guess(data, background):
+def click_guess(data, background, ci=2):
     
     x_list = data.x
     y_list = data.y
@@ -186,7 +185,7 @@ def click_guess(data, background):
         print("x y bandwidth (your guess)")
         print(x_peaks[i], y_peaks[i], bands[i], background)
         print("x y bandwidth background (Fitting result)")
-        print(findpeaks.peakxs[i], findpeaks.peakys[i], findpeaks.peakwidth[i], popt[-1])
+        print(findpeaks.peakxs[i], findpeaks.peakys[i], findpeaks.peak_width(ci)[i], popt[-1])
         print("-"*30)
     
     # write peaks onto csv file
@@ -196,7 +195,7 @@ def click_guess(data, background):
     peaks = pd.DataFrame(peaks, columns=["x", "y", "width", "background"])
     return peaks
     
-def drag_guess(data, background):
+def drag_guess(data, background, ci=2):
     
     x_list = data.x
     y_list = data.y
@@ -387,7 +386,7 @@ def drag_guess(data, background):
         print("x y bandwidth (your guess)")
         print(x_peaks[i], y_peaks[i], bands[i], background)
         print("x y bandwidth background (Fitting result)")
-        print(findpeaks.peakxs[i], findpeaks.peakys[i], findpeaks.peakwidth[i], popt[-1])
+        print(findpeaks.peakxs[i], findpeaks.peakys[i], findpeaks.peak_width(2)[i], popt[-1])
         print("-"*30)
     
     # write peaks onto csv file
@@ -421,3 +420,4 @@ if __name__ == "__main__":
     #         y_list.append(float(row[1]))
     
     data= read_data(base_url + endpoint, 0, ',')
+    drag_guess(data, 0)

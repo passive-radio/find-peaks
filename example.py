@@ -25,15 +25,15 @@ if __name__ == "__main__":
     # data = draw_test(base_url + "sample.csv", mode="wrd")
     
     # select the peak pos by mouse dragging and wrapping each peaks
-    peaks = drag_guess(data, background=0)
+    peaks = drag_guess(data, background=0, ci=2)
     
-    print(peaks)
+    # print(peaks)
     
-    output_url = "output/"
-    filename, ext = os.path.splitext(endpoint)
+    # output_url = "output/"
+    # filename, ext = os.path.splitext(endpoint)
     
-    peaks.to_pickle(output_url+filename+"_peaks.pkl")
-    peaks.to_csv(output_url+filename+"_peaks.csv", sep=",")
+    # peaks.to_pickle(output_url+filename+"_peaks.pkl")
+    # peaks.to_csv(output_url+filename+"_peaks.csv", sep=",")
     
     # select the peak pos by clicking the edge of each peaks
     # click_guess(data)

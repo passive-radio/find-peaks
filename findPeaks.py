@@ -250,6 +250,11 @@ class findPeaks(object):
         peakwidth = [popt[i] for i in range(len(popt)) if i % 3 ==2]
         return peakwidth
         
+    def peak_width(self, ci):
+        popt = self.popt
+        wid_list = [popt[i] for i in range(len(popt)) if i % 3 ==2]
+        wid_list = [wid_list[i]/(2**0.5) * 2*ci for i in range(len(wid_list))]
+        return wid_list
     
 def read_data(file, headers, delimineter):
     data = []
