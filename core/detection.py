@@ -1,12 +1,13 @@
-import numpy as np
 import csv
+
+import numpy as np
 import pandas as pd
 from scipy.optimize import curve_fit
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 
 
-class findPeaks(object):
+class find_peaks(object):
     def __init__(self, data, peaks=None) -> None:
         if type(peaks) == int:
             self.peaks = peaks
@@ -255,27 +256,3 @@ class findPeaks(object):
         wid_list = [popt[i] for i in range(len(popt)) if i % 3 ==2]
         wid_list = [wid_list[i]/(2**0.5) * 2*ci for i in range(len(wid_list))]
         return wid_list
-    
-def read_data(file, headers, delimineter):
-    data = []
-    with open(file, "r", encoding="utf-8") as f:
-        reader = csv.reader(f, delimiter=delimineter)
-        for i, row in enumerate(reader):
-            if headers < i:
-                data.append([float(row[0].replace('\n', '').replace(' ','')), float(row[1].replace('\n', '').replace(' ',''))])
-                
-    data = pd.DataFrame(data, columns=['x', 'y'])
-    return data
-
-def reset_range(data, start=None, end=None):
-    try:
-        if type(start) == int and type(end)==int:
-            return data[start:end]
-        elif start == None and type(end)==int:
-            return data[0,end]
-        elif type(start)==int and end==None:
-            return data[start:]
-        else:return data
-    except Exception as e:
-        print("Error: xrange should be [x_start, x_end]")
-        

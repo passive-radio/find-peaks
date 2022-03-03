@@ -8,7 +8,8 @@ import matplotlib.patches as patches
 from matplotlib.artist import Artist
 
 
-from findPeaks import findPeaks, read_data, reset_range
+from core.detection import find_peaks
+from core.preprocessing import read_data, reset_range
 
 
 x_list = []
@@ -26,61 +27,6 @@ DragFlag = False
 draw_count = 0
 rs = []
 is_released = False
-
-
-def draw_test(file_path, mode):
-    
-    def motion(event):
-        if (event.xdata is  None) or (event.ydata is  None):
-            return
-        
-        if event.button == 1:
-            x = event.xdata
-            y = event.ydata
-            
-            if len(x_list) == 0:
-                x_list.append(x)
-                y_list.append(y)
-            
-            if len(x_list) > 0 and (x - x_list[-1])**2 > (X_SCALE/80):
-                x_list.append(x)
-                y_list.append(y)
-            
-            ln.set_data(x_list, y_list)
-        plt.xlim(0,X_SCALE)
-        plt.ylim(0,Y_SCALE)
-        plt.draw()
-        
-    plt.figure()
-    ln, = plt.plot([],[],'x')
-    plt.connect('motion_notify_event', motion)
-    plt.show()
-
-    list = []
-    for i in range(len(x_list)):
-        list.append([x_list[i], y_list[i]])
-        
-        
-    # plt.plot(x_list, y_list)
-
-    #plt.show()
-
-    print(list)
-    list = np.array(list)
-    
-    try:
-        with open(file_path, 'w', newline='') as file:
-            mywriter = csv.writer(file, delimiter=',')
-            mywriter.writerows(list)
-    except FileNotFoundError as e:
-        print(f"{e}, please verify your file path")
-        
-    if mode== "wrd":
-        return read_data(file_path, 0, ",")
-    
-    if mode=="wrp":
-        return file_path
-
 
 def click_guess(data, background, ci=2):
     
@@ -152,7 +98,7 @@ def click_guess(data, background, ci=2):
     
         
     #data = reset_range(data_origin, 1600)
-    findpeaks = findPeaks(data)
+    findpeaks = find_peaks(data)
     
     #初期値のリストを作成
     #[amp,ctr,wid]
@@ -352,7 +298,7 @@ def drag_guess(data, background, ci=2):
     plt.show()
     
     #data = reset_range(data_origin, 1600)
-    findpeaks = findPeaks(data)
+    findpeaks = find_peaks(data)
     
     #初期値のリストを作成
     #[amp,ctr,wid]
@@ -395,16 +341,7 @@ def drag_guess(data, background, ci=2):
     
     peaks = pd.DataFrame(peaks, columns=["x", "y", "width", "background"])
     return peaks
-    
 
-def seeSpectrum(data):
-    
-    x_list = data.x
-    y_list = data.y
-    
-    plt.title("")
-    plt.scatter(x_list, y_list, s=2)
-    plt.show()
     
 if __name__ == "__main__":
     
