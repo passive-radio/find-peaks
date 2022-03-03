@@ -1,5 +1,5 @@
 from core.preprocessing import read_data, reset_range
-from interactive import click_guess, drag_guess
+from core.interactive import click_guess, drag_guess
 from utils.visualize import see_spectrum
 
 if __name__ == "__main__":

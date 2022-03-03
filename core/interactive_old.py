@@ -1,14 +1,12 @@
-from inspect import getclosurevars
-from os import path, terminal_size
 import matplotlib.pyplot as plt 
 import matplotlib.patches as patches
 from matplotlib.artist import Artist
-import time
 import csv
 import numpy as np
 import pandas as pd
 
-from findPeaks import findPeaks, read_data, reset_range
+from core.detection import find_peaks
+from core.preprocessing import read_data
 
 x_list = []
 y_list = []
@@ -238,7 +236,7 @@ def plot_test(data):
     plt.show()
     
     #data = reset_range(data_origin, 1600)
-    findpeaks = findPeaks(data)
+    findpeaks = find_peaks(data)
     
     #初期値のリストを作成
     #[amp,ctr,wid]
