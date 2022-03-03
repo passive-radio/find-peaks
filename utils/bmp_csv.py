@@ -25,13 +25,14 @@ def bmpToCSV(file):
         with open(dirname +"/"+ filename + ".csv", 'w', newline='', encoding="utf-8") as file:
             mywriter = csv.writer(file, delimiter=',')
             mywriter.writerows(pixel_lum)
-        print("CSV file successfully generated!")
+        # print("CSV file successfully generated!")
     except Exception as e:
         print(f"{e}")
 
 if __name__ == "__main__":
-    base_path = "data_spectrum"
-    endpoint = "sample02.bmp"
+    base_path = "../data/atom_linear_spectrum/"
     
-    file_path = base_path +"/"+ endpoint
-    bmpToCSV(file_path)
+    
+    for file in os.listdir(base_path):
+        bmpToCSV(base_path + file)
+    
