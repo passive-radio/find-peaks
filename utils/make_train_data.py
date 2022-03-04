@@ -5,10 +5,12 @@ import pandas as pd
 import numpy as np
 from tqdm import tqdm
 import matplotlib.pyplot as plt
+import sys
+
+sys.path.append('utils/')
 
 from visualize import check_dir_spectra
 
-import sys
 sys.path.append('../')
 
 from core.preprocessing import read_data, spectra_image, reset_range
