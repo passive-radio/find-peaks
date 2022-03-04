@@ -113,7 +113,6 @@ def parsed_data(label_path_base, x_dir_path, way, new_data=True):
     x_data = make_same_size_np_image(np_images, max_height)
     y_width = np_images[0].shape[1]
     
-    sys.path.remove('../')
     if way == "click":
         df = label_dir_all(x_dir_path, label_path_base, way)
         # df = pd.read_csv(label_file)
