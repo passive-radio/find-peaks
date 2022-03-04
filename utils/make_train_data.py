@@ -1,14 +1,8 @@
-from cmath import atanh
-from distutils import filelist
 import os
-from re import X
-from shutil import ignore_patterns
-from turtle import RawTurtle
-from urllib.parse import MAX_CACHE_SIZE
-from matplotlib.pyplot import ylabel
 
 import pandas as pd
 import numpy as np
+from numpy import arange
 from tqdm import tqdm
 import matplotlib.pyplot as plt
 
@@ -18,23 +12,6 @@ sys.path.append('../')
 from core.preprocessing import read_data, spectra_image, reset_range
 from utils.labeling import put_labels
 
-def label_dir_all(dir_path, path_save):
-    filelist = os.listdir(dir_path)
-    y_labels = []
-    
-    for file in filelist:
-        data = read_data(dir_path + file, headers=-1, delimineter=",")
-        labeller = put_labels(data=data, mode="click")
-        x_peaks, _ = labeller.put_labels()
-        print(x_peaks)
-        y_labels.append(x_peaks)
-    
-    df = pd.DataFrame(y_labels)
-    del y_labels
-    return df
-    df.to_csv(path_save, sep=",")
-    del df
-    
 def x_data_dir_all(dir_path):
     filelist = os.listdir(dir_path)[:100]
     max_height = 1
@@ -51,7 +28,34 @@ def x_data_dir_all(dir_path):
     # np_images = np.array([np_image_list[i] for i in range(len(np_image_list))])
     return np_image_list, max_height
 
-def y_data_all(df, y_width):
+def label_dir_all(dir_path, path_save, way):
+    filelist = os.listdir(dir_path)[:100]
+    y_labels = []
+    
+    for file in filelist:
+        data = read_data(dir_path + file, headers=-1, delimineter=",")
+        labeller = put_labels(data=data, mode=way)
+        
+        if way == "click":
+            x_peaks, _ = labeller.put_labels()
+            print(x_peaks)
+            y_labels.append(x_peaks)
+            
+        if way == "drag":
+            x12_peaks, y12_peaks = labeller.put_labels()
+            y_labels.append(x12_peaks)
+            # y_labels.append(arange(start=x1_peaks, stop=x2_peaks, step=1))
+            
+    if way == "drag":
+        return y_labels
+    
+    df = pd.DataFrame(y_labels)
+    print(df)
+    del y_labels
+    # df.to_csv(path_save, sep=",")
+    return df
+
+def y_data_all(df, y_width, label_file_base):
     y_labels = df
     y_labels.set_axis(["x", "y1", "y2"], axis="columns", inplace=True)
     
@@ -71,18 +75,54 @@ def y_data_all(df, y_width):
                 y2 = int(y_width -1)
             label[index][y2] = 1
             # print(y2)
+            
+    df_ans = pd.DataFrame(label)
+    df_ans.to_pickle(label_file_base + ".pkl")
+    df_ans.to_csv(label_file_base+".csv")
+    del df_ans
     return label
 
-def parsed_data(label_file, x_dir_path):
+def y_data_all_drag(y_labels, y_width, label_file_base):
     
+    label = np.zeros(shape=(len(y_labels), y_width))
+    for i, y_label in enumerate(y_labels):
+        for y_band in y_label:
+            if type(y_band[0]) == np.float64:
+                if y_band[0] < y_band[1]:
+                    y_left_edge = int(y_band[0])
+                    y_right_edge = int(y_band[1])
+                else:
+                    y_left_edge = int(y_band[1])
+                    y_right_edge = int(y_band[0])
+                if y_left_edge < 0:
+                    y_left_edge = 0
+                if y_right_edge > y_width:
+                    y_right_edge = y_width
+                    
+                label[i][y_left_edge: y_right_edge] = 1
+                print(y_left_edge, y_right_edge)
+                
+    df_ans = pd.DataFrame(label)
+    df_ans.to_pickle(label_file_base+".pkl")
+    df_ans.to_csv(label_file_base+".csv")
+    del df_ans
+    return label
+
+def parsed_data(label_path_base, x_dir_path, way):
     np_images, max_height = x_data_dir_all(x_dir_path)
     x_data = make_same_size_np_image(np_images, max_height)
-    
-    # df = label_dir_all(x_dir_path, label_file)
-    df = pd.read_csv(label_file)
     y_width = np_images[0].shape[1]
-    y_data = y_data_all(df, y_width)
     
+    sys.path.remove('../')
+    if way == "click":
+        df = label_dir_all(x_dir_path, label_path_base, way)
+        # df = pd.read_csv(label_file)
+        y_data = y_data_all(df, y_width, label_path_base)
+        
+    elif way == "drag":
+        y_labels = label_dir_all(x_dir_path, label_path_base, way)
+        y_data = y_data_all_drag(y_labels, y_width, label_path_base)
+        
     return x_data, y_data
 
 def make_same_size_np_image(x_data, max_height):
@@ -99,9 +139,9 @@ def make_same_size_np_image(x_data, max_height):
 
 if __name__ == "__main__":
     
-    label_file = "../../data/ans_type0.csv"
-    x_dir_path = "../../data/atom_linear_spectrum/"
-    x_data, y_data = parsed_data(label_file, x_dir_path)
+    label_path_base = '../../data/ans_type0'
+    x_dir_path = '../../data/atom_linear_spectrum/'
+    x_data, y_data = parsed_data(label_path_base, x_dir_path, way="drag")
     print(x_data.shape, y_data.shape)
     
     # print(x_data[0].shape)
