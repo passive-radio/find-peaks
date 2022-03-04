@@ -27,14 +27,15 @@ def reset_range(data, start=None, end=None):
     except Exception as e:
         print("Error: xrange should be specified!(=> [x_start, x_end])")
         
-        
 def spectra_image(data):
     # xy = np.zeros((len(data.x),len(data.y)))
     y_ini = str(data.y[0])
     y_s, y_d = y_ini.split('.')
     place_num = len(y_d)
-    xy = np.zeros((len(data.x), int(np.max(data.y)*10**place_num)+1))
+    place_num = place_num if place_num > 3 else 4
+    xy = np.zeros((len(data.x), int(np.max(data.y)*10**(place_num-3)+1)))
     for i in range(len(data.x)):
-        dotted_y = int(data.y[i]*10**place_num)
+        dotted_y = int(data.y[i]*10**(place_num-3))
         xy[i][dotted_y] = 1
+        del dotted_y
     return xy
