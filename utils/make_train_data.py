@@ -1,20 +1,24 @@
 import os
+from pprint import pprint
 
 import pandas as pd
 import numpy as np
-from numpy import arange
 from tqdm import tqdm
 import matplotlib.pyplot as plt
+
+from visualize import check_dir_spectra
 
 import sys
 sys.path.append('../')
 
 from core.preprocessing import read_data, spectra_image, reset_range
 from utils.labeling import put_labels
+from sklearn.model_selection import train_test_split
 
 def x_data_dir_all(dir_path):
-    filelist = os.listdir(dir_path)[:100]
-    filelist = sorted(filelist, key=lambda x: int(os.path.basename(x)[15:16]))
+    filelist = os.listdir(dir_path)
+    filelist = sorted(filelist, key=lambda x: int(os.path.splitext(os.path.basename(x))[0][15:]))
+    filelist = filelist[:100]
     max_height = 1
     np_image_list = []
     
@@ -30,8 +34,9 @@ def x_data_dir_all(dir_path):
     return np_image_list, max_height
 
 def label_dir_all(dir_path, path_save, way):
-    filelist = os.listdir(dir_path)[:100]
-    filelist = sorted(filelist, key=lambda x: int(os.path.basename(x)[15:16]))
+    filelist = os.listdir(dir_path)
+    filelist = sorted(filelist, key=lambda x: int(os.path.splitext(os.path.basename(x))[0][15:]))
+    filelist = filelist[:100]
     y_labels = []
     
     for file in filelist:
@@ -44,6 +49,7 @@ def label_dir_all(dir_path, path_save, way):
             y_labels.append(x_peaks)
             
         if way == "drag":
+            print(file)
             x12_peaks, y12_peaks = labeller.put_labels()
             y_labels.append(x12_peaks)
             # y_labels.append(arange(start=x1_peaks, stop=x2_peaks, step=1))
@@ -102,7 +108,6 @@ def y_data_all_drag(y_labels, y_width, label_file_base):
                     y_right_edge = y_width
                     
                 label[i][y_left_edge: y_right_edge] = 1
-                print(y_left_edge, y_right_edge)
                 
     df_ans = pd.DataFrame(label)
     df_ans.to_pickle(label_file_base+".pkl")
@@ -153,10 +158,19 @@ if __name__ == "__main__":
     x_data, y_data = parsed_data(label_path_base, x_dir_path, way="drag", new_data=False)
     print(x_data.shape, y_data.shape)
     
-    plt.imshow(x_data[1])
-    print(np.where(y_data[1] > 0))
+    # plt.imshow(x_data[1])
+    # print(np.where(y_data[1] > 0))
     
-    plt.show()
+    X_train, X_test, y_train, y_test = train_test_split(x_data, y_data, random_state=42)
+    
+    # plt.imshow(x_data[2])
+    
+    pprint(np.unique(np.where(y_data >0)[0]))
+    
+    check_dir_spectra(x_dir_path, num=100)
+    
+    
+    # plt.show()
     # print(x_data[0].shape)
     # print(np.where(y_data > 0.5))
     
