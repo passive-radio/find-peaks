@@ -14,6 +14,7 @@ from utils.labeling import put_labels
 
 def x_data_dir_all(dir_path):
     filelist = os.listdir(dir_path)[:100]
+    filelist = sorted(filelist, key=lambda x: int(os.path.basename(x)[15:16]))
     max_height = 1
     np_image_list = []
     
@@ -30,6 +31,7 @@ def x_data_dir_all(dir_path):
 
 def label_dir_all(dir_path, path_save, way):
     filelist = os.listdir(dir_path)[:100]
+    filelist = sorted(filelist, key=lambda x: int(os.path.basename(x)[15:16]))
     y_labels = []
     
     for file in filelist:
@@ -151,6 +153,10 @@ if __name__ == "__main__":
     x_data, y_data = parsed_data(label_path_base, x_dir_path, way="drag", new_data=False)
     print(x_data.shape, y_data.shape)
     
+    plt.imshow(x_data[1])
+    print(np.where(y_data[1] > 0))
+    
+    plt.show()
     # print(x_data[0].shape)
     # print(np.where(y_data > 0.5))
     
