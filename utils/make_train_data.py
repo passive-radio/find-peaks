@@ -10,6 +10,7 @@ from matplotlib.pyplot import ylabel
 import pandas as pd
 import numpy as np
 from tqdm import tqdm
+import matplotlib.pyplot as plt
 
 import sys
 sys.path.append('../')
@@ -43,8 +44,9 @@ def x_data_dir_all(dir_path):
         data = read_data(dir_path + file, headers=-1, delimineter=",")
         np_image = spectra_image(data)
         
-        if np_image.shape[1] > max_height:
-            max_height = np_image.shape[1]
+        if np_image.shape[0] > max_height:
+            max_height = np_image.shape[0]
+            print(max_height)
         np_image_list.append(np_image)
         del data, np_image
     # np_images = np.array([np_image_list[i] for i in range(len(np_image_list))])
@@ -89,8 +91,8 @@ def make_same_size_np_image(x_data, max_height):
     np_images = []
     for x in tqdm(x_data):
         shape = x.shape
-        zeros = np.zeros(shape=(shape[0], max_height))
-        zeros[0:shape[0], 0:shape[1]] = x
+        zeros = np.zeros(shape=(max_height, shape[1]))
+        zeros[max_height-shape[0]:max_height, 0:shape[1]] = x
         np_images.append(zeros)
     
     np_images = np.array(np_images)
@@ -101,6 +103,11 @@ if __name__ == "__main__":
     label_file = "../../data/ans_type0.csv"
     x_dir_path = "../../data/atom_linear_spectrum/"
     x_data, y_data = parsed_data(label_file, x_dir_path)
-    print(x_data.shape, y_data.shape)
+    # print(x_data.shape, y_data.shape)
     
-    print(np.where(y_data > 0.5))
+    # print(x_data[0].shape)
+    
+    # print(np.where(y_data > 0.5))
+    
+    plt.imshow(x_data[2])
+    plt.show()
