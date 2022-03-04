@@ -80,7 +80,7 @@ def parsed_data(label_file, x_dir_path):
     
     # df = label_dir_all(x_dir_path, label_file)
     df = pd.read_csv(label_file)
-    y_width = np_images[0].shape[0]
+    y_width = np_images[0].shape[1]
     y_data = y_data_all(df, y_width)
     
     return x_data, y_data
@@ -102,7 +102,7 @@ if __name__ == "__main__":
     label_file = "../../data/ans_type0.csv"
     x_dir_path = "../../data/atom_linear_spectrum/"
     x_data, y_data = parsed_data(label_file, x_dir_path)
-    # print(x_data.shape, y_data.shape)
+    print(x_data.shape, y_data.shape)
     
     # print(x_data[0].shape)
     # print(np.where(y_data > 0.5))
