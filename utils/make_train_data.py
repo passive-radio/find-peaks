@@ -88,14 +88,14 @@ def parsed_data(label_file, x_dir_path):
 def make_same_size_np_image(x_data, max_height):
     
     np_images = []
+    i = 0
     for x in tqdm(x_data):
-        i = 0
         shape = x.shape
         zeros = np.zeros(shape=(max_height, shape[1]))
         zeros[max_height-shape[0]:max_height, 0:shape[1]] = x
         np_images.append(zeros)
-        if shape[1] != 640 :
-            print("not 640!")
+        if shape[1] != 640:
+            print(f"{i}: not 640!")
         if np_images[i].shape[0] != max_height:
             print("not same height")
         i +=1
