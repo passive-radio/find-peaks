@@ -123,7 +123,10 @@ def parsed_data(label_path_base, x_dir_path, way, new_data=True):
         y_data = y_data_all_drag(y_labels, y_width, label_path_base)
     
     elif way == "drag" and new_data == False:
-        y_data = pd.read_pickle(label_path_base+".pkl")
+        try:
+            y_data = pd.read_pickle(label_path_base+".pkl")
+        except:
+            y_data = pd.read_csv(label_path_base+".csv")
     return x_data, y_data
 
 def make_same_size_np_image(x_data, max_height):
