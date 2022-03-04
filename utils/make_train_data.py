@@ -108,7 +108,7 @@ def y_data_all_drag(y_labels, y_width, label_file_base):
     del df_ans
     return label
 
-def parsed_data(label_path_base, x_dir_path, way):
+def parsed_data(label_path_base, x_dir_path, way, new_data=True):
     np_images, max_height = x_data_dir_all(x_dir_path)
     x_data = make_same_size_np_image(np_images, max_height)
     y_width = np_images[0].shape[1]
@@ -119,10 +119,12 @@ def parsed_data(label_path_base, x_dir_path, way):
         # df = pd.read_csv(label_file)
         y_data = y_data_all(df, y_width, label_path_base)
         
-    elif way == "drag":
+    elif way == "drag" and new_data==True:
         y_labels = label_dir_all(x_dir_path, label_path_base, way)
         y_data = y_data_all_drag(y_labels, y_width, label_path_base)
-        
+    
+    elif way == "drag" and new_data == False:
+        y_data = pd.read_pickle(label_path_base+".pkl")
     return x_data, y_data
 
 def make_same_size_np_image(x_data, max_height):
@@ -141,7 +143,7 @@ if __name__ == "__main__":
     
     label_path_base = '../../data/ans_type0'
     x_dir_path = '../../data/atom_linear_spectrum/'
-    x_data, y_data = parsed_data(label_path_base, x_dir_path, way="drag")
+    x_data, y_data = parsed_data(label_path_base, x_dir_path, way="drag", new_data=False)
     print(x_data.shape, y_data.shape)
     
     # print(x_data[0].shape)
