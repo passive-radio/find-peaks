@@ -54,14 +54,14 @@ def y_data_all(df, y_width):
     y_labels = df
     y_labels.set_axis(["x", "y1", "y2"], axis="columns", inplace=True)
     
+    label = np.zeros(shape=(len(y_labels), y_width))
     for y_label in y_labels.itertuples():
         index = y_label.x
-        label = np.zeros(shape=(len(y_labels), y_width))
         if y_label.y1 is not np.nan and not y_label.y1 != y_label.y1:
             y1 = int(y_label.y1)
             if y1 > y_width:
                 y1 = int(y_width -1)
-        
+            # print(y1)
             label[index][y1] = 1
         
         if y_label.y2 is not np.nan and not y_label.y2 != y_label.y2:
@@ -69,7 +69,7 @@ def y_data_all(df, y_width):
             if y2 > y_width:
                 y2 = int(y_width -1)
             label[index][y2] = 1
-            
+            # print(y2)
     return label
 
 def parsed_data(label_file, x_dir_path):
@@ -103,3 +103,4 @@ if __name__ == "__main__":
     x_data, y_data = parsed_data(label_file, x_dir_path)
     print(x_data.shape, y_data.shape)
     
+    print(np.where(y_data > 0.5))
