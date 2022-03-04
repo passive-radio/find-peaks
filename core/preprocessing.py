@@ -33,9 +33,10 @@ def spectra_image(data):
     y_s, y_d = y_ini.split('.')
     place_num = len(y_d)
     place_num = 3
-    xy = np.zeros((len(data.x), int(np.max(data.y)*10**(place_num-3)+1)))
+    height = int(np.max(data.y)*10**(place_num-3)+1)
+    xy = np.zeros((height, len(data.x)))
     for i in range(len(data.x)):
         dotted_y = int(data.y[i]*10**(place_num-3))
-        xy[i][dotted_y] = 1
+        xy[height-dotted_y:height,i] = 1
         del dotted_y
     return xy

@@ -91,6 +91,7 @@ def make_same_size_np_image(x_data, max_height):
     i = 0
     for x in tqdm(x_data):
         shape = x.shape
+        print(shape)
         zeros = np.zeros(shape=(max_height, shape[1]))
         zeros[max_height-shape[0]:max_height, 0:shape[1]] = x
         np_images.append(zeros)
@@ -111,11 +112,6 @@ if __name__ == "__main__":
     # print(x_data.shape, y_data.shape)
     
     # print(x_data[0].shape)
-    
-    for x in x_data:
-        if x.shape[1] != 640:
-            print("not 640")
-    
     # print(np.where(y_data > 0.5))
     
     # plt.imshow(x_data[2])
