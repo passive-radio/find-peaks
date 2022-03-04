@@ -32,7 +32,7 @@ def spectra_image(data):
     y_ini = str(data.y[0])
     y_s, y_d = y_ini.split('.')
     place_num = len(y_d)
-    place_num = place_num if place_num > 3 else 4
+    place_num = 3
     xy = np.zeros((len(data.x), int(np.max(data.y)*10**(place_num-3)+1)))
     for i in range(len(data.x)):
         dotted_y = int(data.y[i]*10**(place_num-3))
