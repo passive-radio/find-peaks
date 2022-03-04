@@ -46,7 +46,6 @@ def x_data_dir_all(dir_path):
         
         if np_image.shape[0] > max_height:
             max_height = np_image.shape[0]
-            print(max_height)
         np_image_list.append(np_image)
         del data, np_image
     # np_images = np.array([np_image_list[i] for i in range(len(np_image_list))])
@@ -90,10 +89,16 @@ def make_same_size_np_image(x_data, max_height):
     
     np_images = []
     for x in tqdm(x_data):
+        i = 0
         shape = x.shape
         zeros = np.zeros(shape=(max_height, shape[1]))
         zeros[max_height-shape[0]:max_height, 0:shape[1]] = x
         np_images.append(zeros)
+        if shape[1] != 640 :
+            print("not 640!")
+        if np_images[i].shape[0] != max_height:
+            print("not same height")
+        i +=1
     
     np_images = np.array(np_images)
     return np_images
@@ -107,7 +112,11 @@ if __name__ == "__main__":
     
     # print(x_data[0].shape)
     
+    for x in x_data:
+        if x.shape[1] != 640:
+            print("not 640")
+    
     # print(np.where(y_data > 0.5))
     
-    plt.imshow(x_data[2])
-    plt.show()
+    # plt.imshow(x_data[2])
+    # plt.show()
