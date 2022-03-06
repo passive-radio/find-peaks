@@ -1,8 +1,9 @@
 import csv
-from posixpath import split
+import os
 import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
+import cv2
 
 def read_data(file, headers, delimineter):
     data = []
@@ -40,3 +41,20 @@ def spectra_image(data):
         xy[height-dotted_y:height,i] = 1
         del dotted_y
     return xy
+
+def resize_dir_image(dir_path, width, height):
+    filelist = os.listdir(dir_path)
+    filelist = sorted(filelist, key=lambda x: int(os.path.splitext(os.path.basename(x))[0][15:]))
+    filelist = filelist[:100]
+    
+    np_images = []
+    for file in filelist:
+        img = read_data(dir_path + file, headers=-1, delimineter=",")
+        img = spectra_image(img)
+        ratio_y = height/img.shape[0]
+        ratio_x = width/img.shape[1]
+        img = cv2.resize(img, dsize=None, fx=ratio_x, fy=ratio_y,interpolation=cv2.INTER_LANCZOS4)
+        np_images.append(img)
+        
+    np_images = np.array(np_images)
+    return np_images

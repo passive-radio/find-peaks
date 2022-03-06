@@ -15,7 +15,7 @@ from visualize import check_dir_spectra
 
 sys.path.append('../')
 
-from core.preprocessing import read_data, spectra_image, reset_range, reisize_dir_image
+from core.preprocessing import read_data, spectra_image, reset_range, resize_dir_image
 from utils.labeling import put_labels
 from sklearn.model_selection import train_test_split
 
@@ -123,7 +123,7 @@ def parsed_data(label_path_base, x_dir_path, label_way, reshape_way, new_data=Tr
     np_images, max_height = x_data_dir_all(x_dir_path)
     
     if reshape_way == "expand":
-        x_data = reisize_dir_image(x_dir_path, width, height)
+        x_data = resize_dir_image(x_dir_path, width, height)
         y_width = np_images[0].shape[1]
     elif reshape_way == "fill":
         x_data = make_same_size_np_image(np_images, max_height)
