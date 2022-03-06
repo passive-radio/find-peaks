@@ -5,6 +5,23 @@ import matplotlib.pyplot as plt
 import numpy as np
 import cv2
 
+def res_img_filee(dir_path, width, height):
+    filelist = os.listdir(dir_path)
+    filelist = sorted(filelist, key=lambda x: int(os.path.splitext(os.path.basename(x))[0][15:]))
+    filelist = filelist[:100]
+    
+    np_images = []
+    for file in filelist:
+        img = read_data(dir_path + file, headers=-1, delimineter=",")
+        img = spectra_image(img)
+        ratio_y = height/img.shape[0]
+        ratio_x = width/img.shape[1]
+        img = cv2.resize(img, dsize=None, fx=ratio_x, fy=ratio_y,interpolation=cv2.INTER_LANCZOS4)
+        np_images.append(img)
+        
+    np_images = np.array(np_images)
+    return np_images
+
 def read_data(file, headers, delimineter):
     data = []
     with open(file, "r", encoding="utf-8") as f:
