@@ -63,7 +63,7 @@ def spectra_image(data):
 def resize_dir_image(dir_path, width, height):
     filelist = os.listdir(dir_path)
     filelist = sorted(filelist, key=lambda x: int(os.path.splitext(os.path.basename(x))[0][15:]))
-    filelist = filelist[:100]
+    # filelist = filelist[:100]
     
     np_images = []
     for file in filelist:
