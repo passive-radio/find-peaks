@@ -22,7 +22,7 @@ from sklearn.model_selection import train_test_split
 def x_data_dir_all(dir_path):
     filelist = os.listdir(dir_path)
     filelist = sorted(filelist, key=lambda x: int(os.path.splitext(os.path.basename(x))[0][15:]))
-    filelist = filelist[:100]
+    # filelist = filelist[:100]
     max_height = 1
     np_image_list = []
     
@@ -40,7 +40,7 @@ def x_data_dir_all(dir_path):
 def label_dir_all(dir_path, path_save, way):
     filelist = os.listdir(dir_path)
     filelist = sorted(filelist, key=lambda x: int(os.path.splitext(os.path.basename(x))[0][15:]))
-    filelist = filelist[:100]
+    # filelist = filelist[:100]
     y_labels = []
     
     for file in filelist:
@@ -165,7 +165,7 @@ if __name__ == "__main__":
     label_path_base = '../../data/ans_type0'
     x_dir_path = '../../data/atom_linear_spectrum/'
     x_data, y_data = parsed_data(label_path_base, x_dir_path, label_way="drag", reshape_way="expand",
-                                new_data=False, width=640, height=640)
+                                new_data=True, width=640, height=640)
     print(x_data.shape, y_data.shape)
     
     for i in range(5):
