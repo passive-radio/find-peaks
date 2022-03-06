@@ -3,9 +3,11 @@ from pprint import pprint
 
 import pandas as pd
 import numpy as np
+from numpy import reshape
 from tqdm import tqdm
 import matplotlib.pyplot as plt
 import sys
+import cv2
 
 sys.path.append('utils/')
 
@@ -13,7 +15,7 @@ from visualize import check_dir_spectra
 
 sys.path.append('../')
 
-from core.preprocessing import read_data, spectra_image, reset_range
+from core.preprocessing import read_data, spectra_image, reset_range, reisize_dir_image
 from utils.labeling import put_labels
 from sklearn.model_selection import train_test_split
 
@@ -117,21 +119,26 @@ def y_data_all_drag(y_labels, y_width, label_file_base):
     del df_ans
     return label
 
-def parsed_data(label_path_base, x_dir_path, way, new_data=True):
+def parsed_data(label_path_base, x_dir_path, label_way, reshape_way, new_data=True, width=None, height=None):
     np_images, max_height = x_data_dir_all(x_dir_path)
-    x_data = make_same_size_np_image(np_images, max_height)
-    y_width = np_images[0].shape[1]
     
-    if way == "click":
-        df = label_dir_all(x_dir_path, label_path_base, way)
+    if reshape_way == "expand":
+        x_data = reisize_dir_image(x_dir_path, width, height)
+        y_width = np_images[0].shape[1]
+    elif reshape_way == "fill":
+        x_data = make_same_size_np_image(np_images, max_height)
+        y_width = np_images[0].shape[1]
+    
+    if label_way == "click":
+        df = label_dir_all(x_dir_path, label_path_base, label_way)
         # df = pd.read_csv(label_file)
         y_data = y_data_all(df, y_width, label_path_base)
         
-    elif way == "drag" and new_data==True:
-        y_labels = label_dir_all(x_dir_path, label_path_base, way)
+    elif label_way == "drag" and new_data==True:
+        y_labels = label_dir_all(x_dir_path, label_path_base, label_way)
         y_data = y_data_all_drag(y_labels, y_width, label_path_base)
     
-    elif way == "drag" and new_data == False:
+    elif label_way == "drag" and new_data == False:
         try:
             y_data = pd.read_pickle(label_path_base+".pkl")
             y_data = y_data.values
@@ -157,24 +164,14 @@ if __name__ == "__main__":
     
     label_path_base = '../../data/ans_type0'
     x_dir_path = '../../data/atom_linear_spectrum/'
-    x_data, y_data = parsed_data(label_path_base, x_dir_path, way="drag", new_data=False)
+    x_data, y_data = parsed_data(label_path_base, x_dir_path, label_way="drag", reshape_way="expand",
+                                new_data=False, width=640, height=640)
     print(x_data.shape, y_data.shape)
     
-    # plt.imshow(x_data[1])
-    # print(np.where(y_data[1] > 0))
+    for i in range(5):
+        plt.imshow(x_data[i])
+        plt.show()
     
-    X_train, X_test, y_train, y_test = train_test_split(x_data, y_data, random_state=42)
+    # X_train, X_test, y_train, y_test = train_test_split(x_data, y_data, random_state=42)
     
-    # plt.imshow(x_data[2])
-    
-    pprint(np.unique(np.where(y_data >0)[0]))
-    
-    check_dir_spectra(x_dir_path, num=100)
-    
-    
-    # plt.show()
-    # print(x_data[0].shape)
-    # print(np.where(y_data > 0.5))
-    
-    # plt.imshow(x_data[2])
-    # plt.show()
+    # check_dir_spectra(x_dir_path, num=100)
