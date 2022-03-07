@@ -4,7 +4,7 @@ import os
 
 from PIL import Image
 
-def bmpToCSV(file):
+def bmp_to_csv(file):
     lum_list = []
     pixel_lum = []
     image = Image.open(file)
@@ -32,7 +32,5 @@ def bmpToCSV(file):
 if __name__ == "__main__":
     base_path = "../data/atom_linear_spectrum/"
     
-    
     for file in os.listdir(base_path):
-        bmpToCSV(base_path + file)
-    
+        bmp_to_csv(base_path + file)
