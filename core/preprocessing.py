@@ -1,15 +1,19 @@
-from codecs import ignore_errors
+from calendar import day_abbr
 import csv
-from dataclasses import dataclass
 from email import header
+from email.headerregistry import HeaderRegistry
+from operator import contains
 import os
-from turtle import end_fill
+from tkinter.tix import Tree
+from wsgiref import headers
 import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
 import cv2
 
 from numpy import arange
+
+from numpy import column_stack
 
 def res_img_filee(dir_path, width, height):
     filelist = os.listdir(dir_path)
@@ -28,33 +32,32 @@ def res_img_filee(dir_path, width, height):
     np_images = np.array(np_images)
     return np_images
 
-def read_data(file, delimineter, headers=None, footers=None):
+def read_data(file, delimiter=None, headers=None, footers=None, errors="ignore", contains_x_axis=True):
     data = []
-    with open(file, "r", encoding="utf-8") as f:
-        data = f.readline()
-        print(data)
-        reader = csv.reader(f, delimiter=delimineter)
-        if headers == None and footers==None:
-            range_data = np.array(len(reader)).astype(np.int32)
-        elif headers != None and footers == None:
-            range_data = np.arange(start=headers+1, stop=len(reader)-1, step=1).astype(np.int32)
-        elif headers == None and footers != None:
-            range_data = np.arange(start=0, stop=footers-1, step=1).astype(np.int32)
-        elif headers != None and footers != None:
-            range_data = np.arange(start=headers+1, stop=footers-1, step=1).astype(np.int32)
-        df = pd.read_csv(file, sep=",", on_bad_lines="skip")
-        df.reset_index()
-        df.set_axis(["x", "y"], axis="columns")
-        print(df.head(5))
-        for i in range_data:
-            try:
-                if headers < i:
-                # print(str in row)
-                    data.append([float(reader[i][0].replace('\n', '').replace(' ','')), float(reader[i][1].replace('\n', '').replace(' ',''))])
-            except IndexError as e:
-                """"""
-    del reader
-    data = pd.DataFrame(data, columns=['x', 'y'])
+    with open(file, "r", encoding="utf-8", errors=errors) as f:
+        reader =csv.reader(f, delimiter=delimiter)
+        for i, row in enumerate(reader):
+            if row == "":
+                break
+            elif headers < i < footers:
+                data.append([col.replace('\n', '').replace(' ','') for col in row])
+    data = pd.DataFrame(data)
+    if len(data.columns) == 1 and not contains_x_axis:
+        data = data.reset_index()
+        data = data.set_axis(["x", "y"], axis="ignore")
+    elif len(data.columns) == 2 and contains_x_axis:
+        data = data.set_axis(["x", "y"], axis="columns")
+    elif len(data.columns) > 2 and contains_x_axis:
+        data = data.set_axis([f"y{i-1}" for i in range(len(data.columns))], axis="columns")
+        data = data.rename(columns={"y-1": "x"})
+    elif len(data.columns) > 1 and not contains_x_axis:
+        data = data.reset_index()
+        data = data.set_axis([f"y{i-1}" for i in range(len(data.columns))], axis="columns")
+        data = data.rename(columns={"y-1": "x"})
+    elif len(data.columns) == 1 and contains_x_axis:
+        data = data.reset_index()
+        data = data.set_axis(["x", "y"], axis="columns")
+        print("Warning: contains_x_axis is True but the number of the columns is 1. X value might be converted as y.")
     return data
 
 def get_raw_x_data(x_dir_path, delimineter, headers=None, footers=None):
@@ -139,3 +142,10 @@ def resized_x_data(x_data, width=None, height=None, ratio_x=None, ratio_y=None):
                 return
     np_images = np.array(np_images)
     return np_images
+
+
+if __name__ == "__main__":
+    file = "../../data/proportional_tubes_x_ray/spectrum_type2_0.mca"    
+    file = "../../data/atom_linear_spectrum/spectrum_type0_0.csv"
+    data = read_data(file, ",", headers=11, footers=1036, errors="ignore", contains_x_axis=True)
+    print(data.head(3))
