@@ -31,7 +31,7 @@ def res_img_filee(dir_path, width, height):
 def read_data(file, delimineter, headers=None, footers=None):
     data = []
     with open(file, "r", encoding="utf-8") as f:
-        data = f.read()
+        data = f.readline()
         print(data)
         reader = csv.reader(f, delimiter=delimineter)
         if headers == None and footers==None:
