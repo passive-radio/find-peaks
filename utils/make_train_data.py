@@ -15,7 +15,7 @@ from visualize import check_dir_spectra
 
 sys.path.append('../')
 
-from core.preprocessing import read_data, spectra_image, reset_range, resize_dir_image
+from core.preprocessing import read_data, spectra_image, reset_range, resize_dir_image, get_raw_x_data,resized_x_data
 from utils.labeling import put_labels
 from sklearn.model_selection import train_test_split
 
@@ -36,6 +36,15 @@ def x_data_dir_all(dir_path):
         del data, np_image
     # np_images = np.array([np_image_list[i] for i in range(len(np_image_list))])
     return np_image_list, max_height
+
+def return_max_height(np_images):
+    max_height = 0
+    for np_image in np_images:
+                
+        if np_image.shape[0] > max_height:
+            max_height = np_image.shape[0]
+    del np_images
+    return max_height
 
 def label_dir_all(dir_path, path_save, way):
     filelist = os.listdir(dir_path)
@@ -67,7 +76,7 @@ def label_dir_all(dir_path, path_save, way):
     # df.to_csv(path_save, sep=",")
     return df
 
-def y_data_all(df, y_width, label_file_base):
+def y_data_all_click(df, y_width, label_file_base):
     y_labels = df
     y_labels.set_axis(["x", "y1", "y2"], axis="columns", inplace=True)
     
@@ -119,26 +128,17 @@ def y_data_all_drag(y_labels, y_width, label_file_base):
     del df_ans
     return label
 
-def parsed_data(label_path_base, x_dir_path, label_way, reshape_way, new_data=True, width=None, height=None):
-    np_images, max_height = x_data_dir_all(x_dir_path)
-    
+def parsed_data(label_path_base, x_dir_path, delimineter, label_way, reshape_way, new_data=True, width=None, height=None, headers=None, footers=None, ratio_x=None, ratio_y=None):
+    # np_images, max_height = x_data_dir_all(x_dir_path)
+    x_data = get_raw_x_data(x_dir_path, delimineter, headers=headers, footers=footers)
     if reshape_way == "expand":
-        x_data = resize_dir_image(x_dir_path, width, height)
-        y_width = np_images[0].shape[1]
+        x_data = resized_x_data(x_data, width=width, height=height, ratio_x=None, ratio_y =None)
+        y_width = x_data[0].shape[1]
     elif reshape_way == "fill":
-        x_data = make_same_size_np_image(np_images, max_height)
-        y_width = np_images[0].shape[1]
-    
-    if label_way == "click":
-        df = label_dir_all(x_dir_path, label_path_base, label_way)
-        # df = pd.read_csv(label_file)
-        y_data = y_data_all(df, y_width, label_path_base)
-        
-    elif label_way == "drag" and new_data==True:
-        y_labels = label_dir_all(x_dir_path, label_path_base, label_way)
-        y_data = y_data_all_drag(y_labels, y_width, label_path_base)
-    
-    elif label_way == "drag" and new_data == False:
+        max_height = return_max_height(x_data)
+        x_data = make_same_size_np_image(x_data, max_height)
+        y_width = x_data[0].shape[1]
+    if new_data == False:
         try:
             y_data = pd.read_pickle(label_path_base+".pkl")
             y_data = y_data.values
@@ -146,6 +146,15 @@ def parsed_data(label_path_base, x_dir_path, label_way, reshape_way, new_data=Tr
             y_data = pd.read_csv(label_path_base+".csv")
             y_data = y_data.values
             y_data = np.delete(y_data, 0, axis=1)
+            
+    elif label_way == "click" and new_data == True:
+        y_data = label_dir_all(x_dir_path, label_path_base, label_way)
+        y_data = y_data_all_click(y_data, y_width, label_path_base)
+        
+    elif label_way == "drag" and new_data==True:
+        y_data = label_dir_all(x_dir_path, label_path_base, label_way)
+        y_data = y_data_all_drag(y_data, y_width, label_path_base)
+    
     return x_data, y_data
 
 def make_same_size_np_image(x_data, max_height):
@@ -162,10 +171,10 @@ def make_same_size_np_image(x_data, max_height):
 
 if __name__ == "__main__":
     
-    label_path_base = '../../data/ans_type0'
-    x_dir_path = '../../data/atom_linear_spectrum/'
-    x_data, y_data = parsed_data(label_path_base, x_dir_path, label_way="drag", reshape_way="expand",
-                                new_data=True, width=640, height=640)
+    label_path_base = '../../data/ans_type2'
+    x_dir_path = '../../data/proportional_tubes_x_ray/'
+    x_data, y_data = parsed_data(label_path_base, x_dir_path,delimineter=",", label_way="drag", reshape_way="expand",
+                                new_data=True, width=640, height=640, headers=12, footers=1037)
     print(x_data.shape, y_data.shape)
     
     for i in range(5):
