@@ -1,4 +1,7 @@
+from operator import contains
 import os
+from turtle import width
+from wsgiref import headers
 import pandas as pd
 import numpy as np
 from tqdm import tqdm
@@ -45,7 +48,7 @@ def to_x_data(x_dir_path, delimiter, method:str, height=None, width=None, header
     filelist = sorted(filelist, key=lambda x: int(os.path.splitext(os.path.basename(x))[0][15:]))
     
     np_images = []
-    for file in filelist:
+    for file in tqdm(filelist):
         data = read_file(x_dir_path+file, delimiter=delimiter, headers=headers, footers=footers, errors=errors, contains_x_axis=contains_x_axis)
         data = spectra_to_np_array(data)
         np_images.append(data)
@@ -123,7 +126,8 @@ def spectra_to_np_array(data):
         height_multiple = 1
     else:
         _, y_d = y_ini.split('.')
-        height_multiple = 10**len(y_d)
+        # print(len(y_d))
+        height_multiple = 10**int(len(y_d)/3)
     
     data.x = np.array(data.x).astype(np.int32)
     data.y = np.array(data.y).astype(np.float32)
@@ -236,13 +240,21 @@ class anotating_data(object):
 def to_xy_data(x_dir_path:str, delimiter:str, label_way:str, reshape_method:str,
                 width=None, height=None, headers=None, footers=None,
                 ratio_x=None, ratio_y=None, errors="ignore", contains_x_axis=True):
-    x_data = to_x_data(x_dir_path, delimiter, method=reshape_method, height=256, width=256, headers=headers,
+    x_data = to_x_data(x_dir_path, delimiter, method=reshape_method, width=width, height=height, headers=headers,
                         footers=footers, errors=errors, contains_x_axis=contains_x_axis)
     print(x_data.shape)
-    anotating = anotating_data(x_data)
-    y_data = anotating.get_y_data(method=label_way)
+    # anotating = anotating_data(x_data)
+    # y_data = anotating.get_y_data(method=label_way)
+    y_data = pd_to_np_y("../../data/ans_type1.csv")
 
     return x_data, y_data
+
+def pd_to_np_y(label_filepath, y_filepath=None):
+    y_data = pd.read_csv(label_filepath)
+    y_data = y_data.values
+    y_data = np.delete(y_data, 0, axis=1)
+    # np.save(y_filepath, y_data)
+    return y_data
 
 def read_xy_data(x_filepath, y_filepath):
     x_data = np.load(x_filepath)
@@ -266,11 +278,11 @@ def save_data(x_data, y_data, x_filepath:str, y_filepath:str, type="csv"):
 
 if __name__ == "__main__":
     
-    x_dir_path = '../../data/proportional_tubes_x_ray/'
-    x_data, y_data = to_xy_data(x_dir_path,delimiter=",", label_way="drag", 
-                                reshape_method="expand",width=640, height=640, headers=11, footers=1036)
+    x_dir_path = '../../data/gamma_ray/'
+    x_data, y_data = to_xy_data(x_dir_path, ",", "drag", "expand",width=640, height=640, 
+                                headers=-1, footers=640, contains_x_axis=True)
     print(x_data.shape, y_data.shape)
     
-    x_filepath = '../../data/ans_type2_x.npy'
-    y_filepath = '../../data/ans_type2_y.npy'
+    x_filepath = '../../data/ans_type1_x.npy'
+    y_filepath = '../../data/ans_type1_y.npy'
     save_data(x_data, y_data, x_filepath=x_filepath, y_filepath=y_filepath, type="npy")
