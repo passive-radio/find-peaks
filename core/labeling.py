@@ -1,15 +1,16 @@
-from re import X
 import matplotlib.pyplot as plt
-
 import matplotlib.patches as patches
 from matplotlib.artist import Artist
 
 '''
-This module aim to put labels on the train data.
+The module anotates from spectram files
+
+* by click
+* by drag
 '''
 
-x_list = []
-y_list = []
+# x_list = []
+# y_list = []
 
 X_SCALE = 200
 Y_SCALE = 30
@@ -93,8 +94,8 @@ class put_labels(object):
     def by_drag(self):
         data = self.data
         
-        x_list = data.x
-        y_list = data.y
+        # x_list = data.x
+        # y_list = data.y
         
         # print(xy_list)
         #xy_list = np.array(xy_list, dtype="float")
@@ -259,7 +260,8 @@ class put_labels(object):
         plt.connect('button_press_event', button_pressed_motion)
         plt.connect("button_release_event", Release)
         plt.connect("motion_notify_event", mouse_dragged_motion)
-        plt.scatter(x_list, y_list, s=2)
+        # plt.scatter(x_list, y_list, s=2)
+        plt.imshow(data)
         plt.show()
         
         

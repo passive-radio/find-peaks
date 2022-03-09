@@ -1,4 +1,4 @@
-# <b>peak fitter auto</b>
+# <b>find peaks</b>
 This project focuses on finding and fitting peaks.
 with the help of the GUI fitting method, you can find and fit optional number of peaks.
 
