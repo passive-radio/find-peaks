@@ -1,9 +1,13 @@
+from nntplib import NNTPPermanentError
 from operator import contains
 import os
+from tkinter.tix import Tree
 from turtle import width
 from wsgiref import headers
 import pandas as pd
 import numpy as np
+from tensorboard import errors
+from numpy import reshape
 from tqdm import tqdm
 import matplotlib.pyplot as plt
 import sys
@@ -17,12 +21,16 @@ from labeling import put_labels
 
 def read_file(file, delimiter=None, headers=None, footers=None, errors="ignore", contains_x_axis=True):
     data = []
+    if headers == None:
+        headers = -1
     with open(file, "r", encoding="utf-8", errors=errors) as f:
         reader =csv.reader(f, delimiter=delimiter)
         for i, row in enumerate(reader):
-            if row == "":
+            if footers != None and i >= footers:
                 break
-            elif headers < i < footers:
+            if row == "" or row == None:
+                continue
+            elif headers < i :
                 data.append([col.replace('\n', '').replace(' ','') for col in row])
     data = pd.DataFrame(data)
     if len(data.columns) == 1 and not contains_x_axis:
@@ -43,14 +51,14 @@ def read_file(file, delimiter=None, headers=None, footers=None, errors="ignore",
         # print("Warning: contains_x_axis is True but the number of the columns is 1. X value might be converted as y.")
     return data
 
-def to_x_data(x_dir_path, delimiter, method:str, height=None, width=None, headers=None, footers=None, errors="ignore", contains_x_axis=True):
+def to_x_data(x_dir_path, delimiter, method:str, to_x_data_method:str, height=None, width=None, headers=None, footers=None, errors="ignore", contains_x_axis=True):
     filelist = os.listdir(x_dir_path)
     filelist = sorted(filelist, key=lambda x: int(os.path.splitext(os.path.basename(x))[0][15:]))
     
     np_images = []
     for file in tqdm(filelist):
         data = read_file(x_dir_path+file, delimiter=delimiter, headers=headers, footers=footers, errors=errors, contains_x_axis=contains_x_axis)
-        data = spectra_to_np_array(data)
+        data = spectra_to_np_array(data, to_x_data_method=to_x_data_method)
         np_images.append(data)
     x_data = to_same_shape(np_images, method, height=height, width=width)
     del np_images
@@ -118,8 +126,15 @@ def reset_range(data, start=None, end=None):
     except Exception as e:
         print("Error: xrange should be specified!(=> [x_start, x_end])")
         
-def spectra_to_np_array(data):
+def spectra_to_np_array(data, to_x_data_method="fill"):
     
+    if to_x_data_method == "fill":
+        x_data = to_x_data_by_fill(data)
+    elif to_x_data_method == "dot":
+        x_data = to_x_data_by_dot(data)
+    return x_data
+
+def to_x_data_by_fill(data):
     y_ini = str(data.y[0])
     splited_num = y_ini.split('.')
     if len(splited_num) == 1:           # ->natural number
@@ -143,6 +158,10 @@ def spectra_to_np_array(data):
             xy[int(height*height_multiple)-dotted_y:int(height*height_multiple),i] = 1
         del dotted_y
     return xy
+
+def to_x_data_by_dot(data):
+    data.y = np.array(data.y).astype(np.float32)
+    return data.y.values
 
 class anotating_data(object):
     def __init__(self, x_data) -> None:
@@ -237,15 +256,15 @@ class anotating_data(object):
             y_data = np.delete(y_data, 0, axis=1)
         return y_data
 
-def to_xy_data(x_dir_path:str, delimiter:str, label_way:str, reshape_method:str,
+def to_xy_data(x_dir_path:str, delimiter:str, label_way:str, to_x_data_method:str, reshape_method:str,
                 width=None, height=None, headers=None, footers=None,
                 ratio_x=None, ratio_y=None, errors="ignore", contains_x_axis=True):
-    x_data = to_x_data(x_dir_path, delimiter, method=reshape_method, width=width, height=height, headers=headers,
+    x_data = to_x_data(x_dir_path, delimiter, to_x_data_method=to_x_data_method, method=reshape_method, width=width, height=height, headers=headers,
                         footers=footers, errors=errors, contains_x_axis=contains_x_axis)
-    print(x_data.shape)
-    # anotating = anotating_data(x_data)
-    # y_data = anotating.get_y_data(method=label_way)
-    y_data = pd_to_np_y("../../data/ans_type1.csv")
+    # print(x_data.shape)
+    anotating = anotating_data(x_data)
+    y_data = anotating.get_y_data(method=label_way)
+    # y_data = pd_to_np_y("../../data/ans_type1.csv")
 
     return x_data, y_data
 
@@ -279,10 +298,12 @@ def save_data(x_data, y_data, x_filepath:str, y_filepath:str, type="csv"):
 if __name__ == "__main__":
     
     x_dir_path = '../../data/gamma_ray/'
-    x_data, y_data = to_xy_data(x_dir_path, ",", "drag", "expand",width=640, height=640, 
+    x_data, y_data = to_xy_data(x_dir_path, ",", to_x_data_method="fill", label_way= "drag", 
+                                reshape_method= "expand",width=640, height=640, 
                                 headers=-1, footers=640, contains_x_axis=True)
     print(x_data.shape, y_data.shape)
     
-    x_filepath = '../../data/ans_type1_x.npy'
-    y_filepath = '../../data/ans_type1_y.npy'
-    save_data(x_data, y_data, x_filepath=x_filepath, y_filepath=y_filepath, type="npy")
+    # x_filepath = '../../data/ans_type1_x.npy'
+    # y_filepath = '../../data/ans_type1_y.npy'
+    # save_data(x_data, y_data, x_filepath=x_filepath, y_filepath=y_filepath, type="npy")
+    
