@@ -1,103 +1,97 @@
+import os
+
 import numpy as np
 import matplotlib.pyplot as plt
-import math
-from to_np_data import read_file 
 
-width = 6
+from to_np_data import read_file
+import mother_func as mother
 
-# マザーウェーブレット：モルレーウェーブレット
-def morlet(x, f, width):
-    sf = f / width
-    st = 1 / (2 * math.pi * sf)
-    A = 1 / (st * math.sqrt(2 * math.pi))
-    h = -np.power(x, 2) / (2 * st**2)
-    co1 = 1j * 2 * math.pi * f * x
-    return A * np.exp(co1) * np.exp(h)
- 
-# 連続ウェーブレット変換
-def mycwt(Fs, data, fmax, wavelet_R=2):
-    # Fs:           サンプリング周波数
-    # data:         信号
-    # wavelet_R:    マザーウェーブレットの長さ(秒)
-    # fmax:         解析する最大周波数
- 
-    Ts = 1 / Fs     # サンプリング時間幅
-    data_length = len(data) # 信号のサンプル数を取得
-    
-    # マザーウェーブレットの範囲
-    wavelet_length = np.arange(-wavelet_R, wavelet_R, Ts)
- 
-    # 連続ウェーブレット変換後のデータを格納する配列の作成
-    wn = np.zeros([fmax, data_length])
- 
-    # 連続ウェーブレット変換の実行
-    for i in range(0, fmax):
-        wn[i,:] = np.abs(np.convolve(data, morlet(wavelet_length, i+1, width), mode='same'))
-        wn[i,:] = (2 * wn[i, :] / Fs)**2
+
+def to_wavelet_by_morlet(signal,Fs, freqs, wavelet_span, width, convolve_mode="same"):
+    """
+    連続ウェーブレット変換後のデータを格納する配列の作成
+    """
+    Ts = 1/Fs
+    wavelet_length = np.arange(-wavelet_span, wavelet_span, Ts)
+    wn = np.zeros([len(freqs), len(signal)])
+    freqs = np.sort(freqs)
+    print(freqs)
+    length = len(freqs)
+    for i in range(len(freqs)):
+        wn[length-1-i,:] = np.abs(np.convolve(signal, mother.morlet_func(wavelet_length, i+1, width), mode=convolve_mode))
+        wn[length-1-i,:] = (2 * wn[length-1-i, :] / Fs)**2
     
     return wn
- 
-# 連続ウェーブレット変換後のカラーマップ作成関数
-def cwt_plot(CWT, sample_time, fmax, fig_title):
-    plt.imshow(CWT, cmap='jet', aspect='auto',vmax=abs(CWT).max(), vmin=-abs(CWT).max())  
-    plt.title(fig_title)
-    plt.xlabel("time[ms]")
-    plt.ylabel("frequency[Hz]")
-    plt.axis([0, len(sample_time), 0, fmax-1])
-    plt.colorbar()
 
-# plt.rcParams['figure.figsize'] = (16, 6)
-# fig = plt.figure()
-# ax1 = fig.add_axes([0.1, 0.75, 0.7, 0.2])
-# ax2 = fig.add_axes([0.1, 0.1, 0.7, 0.60], sharex=ax1)
-# ax3 = fig.add_axes([0.83, 0.1, 0.03, 0.6])
-
-# ax1.plot(t, y, 'k')
-
-# img = ax2.imshow(np.flipud(rr), extent=[0, N, 0, np.max(freq)],
-#                  aspect='auto', interpolation='nearest')
-
-# fig.colorbar(img, cax=ax3)
-
-# plt.show()
-
-if __name__ == "__main__":
-    # 信号作成 ----------------------------------------
-    Fs = 1000 # サンプリング周波数
-    Ts = 1 / Fs # 1ステップあたりの時間幅
-    time_S = 5 # 信号は5秒分
-    t_data = np.arange(0,time_S, Ts) # 5秒分の時間配列
+# 連続ウェーブレット変換
+def to_cwt(signal, Fs: int, dt=1, wavelet_span=2, fmax=None, mother_func="morlet",
+            width=6, c_mode="same"):
+    """
+    ## Func to run cwt
     
-    basepath = "../../data/atom_linear_spectrum/"
+    ## Parameters
+    - Fs:           サンプリング周波数
+    - dt:           サンプリング間隔(time)
+    -  data:         信号
+    - wavelet_span:    マザーウェーブレットの長さ(秒)
+    - fmax:         解析する最大周波数
+    """
+    
+    N=len(signal)
+    dt = dt          # サンプリング間隔
+    freqs = np.fft.fftfreq(N, d=dt)
+    freqs = freqs[np.where(freqs > 0)]
+    if mother_func == "morlet":
+        np_arr_wavelet = to_wavelet_by_morlet(signal, Fs, freqs, wavelet_span, width, c_mode)
+    elif mother_func == "mexican_hat":
+        return
+    
+    return np_arr_wavelet
+    
+
+def show_result(signal, dt, np_result):
+    
+    N = len(signal)
+    t = np.arange(0, N*dt, dt)
+    try:
+        fmax = np.max(signal)
+    except:
+        signal = signal.values
+        fmax = np.max(signal)
+    
+    plt.rcParams['figure.figsize'] = (12, 6)
+    fig = plt.figure()
+    ax1 = fig.add_axes([0.1, 0.75, 0.7, 0.2])
+    ax2 = fig.add_axes([0.1, 0.1, 0.7, 0.60], sharex=ax1)
+    ax3 = fig.add_axes([0.83, 0.1, 0.03, 0.6])
+
+    ax1.plot(t, signal, 'k')
+
+    img = ax2.imshow(np.flipud(np_result), extent=[0, N, 0, fmax],
+                        aspect='auto', interpolation='nearest')
+
+    fig.colorbar(img, cax=ax3)
+    plt.show()
+    
+def check_wavelet_dir(dir_path, sep=",", headers=None, footers=None, errors="ignore", contains_x_axis=True):
+    filelist = os.listdir(dir_path)
+    filelist = sorted(filelist, key=lambda x: int(os.path.splitext(os.path.basename(x))[0][15:]))
+    for file in filelist:
+        data = read_file(dir_path+file, ",", headers, footers, errors=errors, contains_x_axis=contains_x_axis)
+        signal = data.y.astype(np.float64)
+        
+        dt = 1          # サンプリング間隔
+        Fs = 1/0.01
+        wavelet_span = 2
+        convolve_mode = "same"
+        
+        # 連続ウェーブレット変換 ----------------------------------------
+        result_wavelet = to_cwt(signal, Fs, dt, wavelet_span, mother_func="morlet", 
+                                width=6, c_mode = convolve_mode)
+        show_result(signal, dt, result_wavelet)
+if __name__ == "__main__":
+    
+    base_path = "../../data/atom_linear_spectrum/"
     filename = "spectrum_type0_1.csv"
 
-    data = read_file(basepath+filename, ",", 0, 640, errors="ignore", contains_x_axis=True)
-    data.x = data.x.astype(np.int32)
-    data.y = data.y.astype(np.float32)
-    signal = data.y
-    
-    # データのパラメータ
-    N=len(signal)
-    dt = 1          # サンプリング間隔
-    t = np.arange(0, N*dt, dt)
-    # 高速フーリエ変換
-    # F = np.fft.fft(signal)
-    # 振幅スペクトルを計算
-    # freq = np.fft.fftfreq(N, d=dt)
-    # Amp = np.abs(F/(N/2))
-    freqs = np.fft.fftfreq(N, d=dt)
-    Fs = 1/0.01
-    omega0 = 8
-    # (1)　Freqを指定してcwt
-    freqs = freqs[np.where(freqs > 0)]
-        
-    # 連続ウェーブレット変換 ----------------------------------------
-    fmax=np.max(freqs) # 解析する最大周波数
-    cwt_signal01 = mycwt(Fs=Fs, data=signal, fmax=fmax)
- 
-    # 以下、図用 ----------------------------------------
-    plt.figure(0) # signal01を連続ウェーブレット変換した時のカラーマップの図
-    fig_title01 = "cwt signal01"
-    cwt_plot(cwt_signal01, t, fmax, fig_title01)
-    
-    plt.show()
+    check_wavelet_dir(base_path, ",", 0, 640)

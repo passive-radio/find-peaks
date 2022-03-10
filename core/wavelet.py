@@ -36,8 +36,9 @@ for file in filelist:
     # (1)　Freqを指定してcwt
     freqs = freq[np.where(freq > 0)]
     
-    mother_func = pycwt.Mexican_hat(sigma=sigma)
-    r=pycwt.cwt_f(y,freqs,Fs,mother_func)
+    mexican_hat = pycwt.Mexican_hat(sigma=sigma)
+    morlet = pycwt.Morlet(f0=omega0)
+    r=pycwt.cwt_f(y,freqs,Fs,mexican_hat)
     rr=np.abs(r)
 
     plt.rcParams['figure.figsize'] = (12, 6)
