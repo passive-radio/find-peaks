@@ -15,7 +15,6 @@ if __name__ == "__main__":
     print(data)
     peaks = scipy_find(x=data.y, prominence=10)
     
-    
     properties = peaks[1]
     peaks = peaks[0]
     print(peaks)
