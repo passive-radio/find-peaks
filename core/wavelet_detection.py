@@ -50,7 +50,7 @@ def to_cwt(signal, Fs: int, dt=1, wavelet_span=2, fmax=None, mother_func="morlet
     return np_arr_wavelet
     
 
-def show_result(signal, dt, np_result, peak_prob):
+def plt_scalogram(signal, dt, np_result, peak_prob):
     
     N = len(signal)
     t = np.arange(0, N*dt, dt)
@@ -100,40 +100,47 @@ def moving_average(data, distance):
     
     return centered_ma.to_numpy()
 
-def check_wavelet_dir(dir_path, sep=",", headers=None, footers=None, errors="ignore", 
+def to_scalogram(filepath, sep=",", headers=None, footers=None, errors="ignore", 
+                    contains_x_axis=True, width=6, wavelet_span=2, Fs=100, soft_max_c=1):
+    data = read_file(filepath, ",", headers, footers, errors, contains_x_axis)
+    signal = data.y.astype(np.float64)
+    dt = 1          # サンプリング間隔
+    convolve_mode = "same"
+    
+    # 連続ウェーブレット変換 ----------------------------------------
+    result_wavelet = to_cwt(signal, Fs, dt, wavelet_span, mother_func="morlet", 
+                            width=width, c_mode = convolve_mode)
+    prob = predict_pos(result_wavelet, soft_max_c, Fs)
+    prob_ma = moving_average(prob, distance=len(prob)/4)
+    prob_avg = np.average(prob)
+    
+    peak_prob= []
+    for i, p in enumerate(prob):
+        if p > prob_ma[i] and p > prob_avg:
+            peak_prob.append(i)
+    peak_prob = np.array(peak_prob)
+    
+    # peak_pos_scipy, _ = scipy.signal.find_peaks(prob, distance=len(prob)/10)
+    # for pos in peak_pos_scipy:
+    #     if prob[pos] > prob_ma[pos] and prob[pos] > prob_avg:
+    #         print(pos, prob[pos])
+    plt_scalogram(signal, dt, result_wavelet, peak_prob)
+
+def to_scalogram_dir(dir_path, sep=",", headers=None, footers=None, errors="ignore", 
                     contains_x_axis=True, width=6, wavelet_span=2, Fs=100, soft_max_c=1):
     filelist = os.listdir(dir_path)
     filelist = sorted(filelist, key=lambda x: int(os.path.splitext(os.path.basename(x))[0][15:]))
     for file in filelist:
-        data = read_file(dir_path+file, ",", headers, footers, errors=errors, contains_x_axis=contains_x_axis)
-        signal = data.y.astype(np.float64)
-        
-        dt = 1          # サンプリング間隔
-        convolve_mode = "same"
-        
-        # 連続ウェーブレット変換 ----------------------------------------
-        result_wavelet = to_cwt(signal, Fs, dt, wavelet_span, mother_func="morlet", 
-                                width=width, c_mode = convolve_mode)
-        prob = predict_pos(result_wavelet, soft_max_c, Fs)
-        prob_ma = moving_average(prob, distance=len(prob)/4)
-        prob_avg = np.average(prob)
-        
-        peak_prob= []
-        for i, p in enumerate(prob):
-            if p > prob_ma[i] and p > prob_avg:
-                peak_prob.append(i)
-        peak_prob = np.array(peak_prob)
-        
-        # peak_pos_scipy, _ = scipy.signal.find_peaks(prob, distance=len(prob)/10)
-        # for pos in peak_pos_scipy:
-        #     if prob[pos] > prob_ma[pos] and prob[pos] > prob_avg:
-        #         print(pos, prob[pos])
-        show_result(signal, dt, result_wavelet, peak_prob)
+        to_scalogram(dir_path+filelist, sep, headers, footers, errors,
+                        contains_x_axis,width, wavelet_span, Fs, soft_max_c)
 if __name__ == "__main__":
     
     # base_path = "../../data/atom_linear_spectrum/"
     # check_wavelet_dir(base_path, ",", 0, 640, width=1, wavelet_span=1, Fs=10, soft_max_c=1e-10)
     # base_path = "../../data/gamma_ray/"
     # check_wavelet_dir(base_path, ",", 0, 4096, width=2, wavelet_span=1, Fs=2, soft_max_c=1e-10)
-    base_path = "../../data/proportional_tubes_x_ray/"
-    check_wavelet_dir(base_path, ",", 11, 1036, width=2, wavelet_span=1, Fs=2, soft_max_c=1e-10)
+    # base_path = "../../data/proportional_tubes_x_ray/"
+    # check_wavelet_dir(base_path, ",", 11, 1036, width=2, wavelet_span=1, Fs=2, soft_max_c=1e-10)
+    
+    filepath = "../sample_data/sample_data.csv"
+    to_scalogram(filepath, ",", 0,640,width=1, wavelet_span=1, Fs=10, soft_max_c=10e-8)
