@@ -131,16 +131,16 @@ def to_scalogram_dir(dir_path, sep=",", headers=None, footers=None, errors="igno
     filelist = os.listdir(dir_path)
     filelist = sorted(filelist, key=lambda x: int(os.path.splitext(os.path.basename(x))[0][15:]))
     for file in filelist:
-        to_scalogram(dir_path+filelist, sep, headers, footers, errors,
+        to_scalogram(dir_path+file, sep, headers, footers, errors,
                         contains_x_axis,width, wavelet_span, Fs, soft_max_c)
 if __name__ == "__main__":
     
-    # base_path = "../../data/atom_linear_spectrum/"
-    # check_wavelet_dir(base_path, ",", 0, 640, width=1, wavelet_span=1, Fs=10, soft_max_c=1e-10)
+    base_path = "../../data/atom_linear_spectrum/"
+    to_scalogram_dir(base_path, ",", 0, 640, width=0.4, wavelet_span=4, Fs=10, soft_max_c=1e-10)
     # base_path = "../../data/gamma_ray/"
-    # check_wavelet_dir(base_path, ",", 0, 4096, width=2, wavelet_span=1, Fs=2, soft_max_c=1e-10)
+    # to_scalogram_dir(base_path, ",", 0, 4096, width=2, wavelet_span=10, Fs=2, soft_max_c=1e-10)
     # base_path = "../../data/proportional_tubes_x_ray/"
-    # check_wavelet_dir(base_path, ",", 11, 1036, width=2, wavelet_span=1, Fs=2, soft_max_c=1e-10)
+    # to_scalogram_dir(base_path, ",", 11, 1036, width=2, wavelet_span=6, Fs=2, soft_max_c=1e-10)
     
-    filepath = "../sample_data/sample_data.csv"
-    to_scalogram(filepath, ",", 0,640,width=1, wavelet_span=1, Fs=10, soft_max_c=10e-8)
+    # filepath = "../sample_data/sample_data.csv"
+    # to_scalogram(filepath, ",", 0,640,width=1, wavelet_span=1, Fs=10, soft_max_c=10e-8)
