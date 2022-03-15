@@ -1,5 +1,5 @@
 {
-    "spectrum_num": 100,
+    "spectrum_num": 1000,
     "width": 2000,
     "label_ci": 1,
     "baseline_height_range": [10, 20],
@@ -14,7 +14,7 @@
     "amp_range": [1, 5],
     "sigma_range": [0.01, 0.05],
     "nsr_range": [0.001, 0.04],
-    "dataset_id": 3,
+    "dataset_id": 1,
     "seed_type": "time",
     "smoothing_curve": "linear",
     "dataset_dir": "../data/dataset/"

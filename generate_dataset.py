@@ -1,5 +1,5 @@
 import json
-from utils.dataset import gen_dataset, gen_dataset_v2
+from utils.dataset import gen_dataset, gen_dataset_v2, visualize_dataset
 
 def main():
     file = "config/dataset.json"
@@ -14,6 +14,8 @@ def main():
     #             settings["fs_range"], settings["gpass_range"], settings["gstop_range"],
     #             settings["peak_num_range"], settings["pos_range"], settings["amp_range"],
     #             settings["sigma_range"], settings["nsr_range"])
-    gen_dataset_v2(settings)
+    dataset_dir_path = gen_dataset_v2(settings)
+    
+    visualize_dataset(dataset_dir_path, 100, 2, 4)
 main()
 

@@ -226,9 +226,44 @@ def gen_dataset_v2(dict:dict):
             pass
     with open(dataset_dir_root+f"/config_{dataset_id}.json", 'w') as f:
         json.dump(dict, f, indent=4)
-    return
-    
+    return dataset_dir
 
+def visualize_dataset(dataset_dir, num, nrows, ncols):
+    
+    filelist = os.listdir(dataset_dir)[:num]
+    
+    signal = []
+    label =[]
+    l=0
+    for h in range(num):
+        j = k =0
+        files = filelist[h*nrows*ncols:(h+1)*nrows*ncols]
+        fig,axs = plt.subplots(nrows,ncols, figsize=(10,6))
+        for i,file in enumerate(files):
+            
+            l+=1
+            data = np.load(dataset_dir+file)
+            signal.append(data["x"])
+            label.append(data["y"])
+            label_y = data["y"]
+            width = len(data["x"])
+            
+            if k > 0 and k %ncols == 0:
+                j+=1
+                k =0
+            axs[j,k].plot(range(0, width, 1), data["x"])
+            axs[j,k].plot(np.where(label_y > 0)[0], data["x"][np.where(label_y > 0)], "x")    
+            
+            k+=1
+        # fig.canvas.draw()
+        # fig.canvas.flush_events()
+        # plt.pause(1)
+        plt.show()
+        # fig.clear()
+        plt.close()
+        
+        if l >= num:
+            break
 
 if __name__ == "__main__":
     
