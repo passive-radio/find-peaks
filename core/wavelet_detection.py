@@ -136,7 +136,7 @@ def to_scalogram_dir(dir_path, sep=",", headers=None, footers=None, errors="igno
 if __name__ == "__main__":
     
     base_path = "../../data/atom_linear_spectrum/"
-    to_scalogram_dir(base_path, ",", 0, 640, width=0.4, wavelet_span=4, Fs=10, soft_max_c=1e-10)
+    to_scalogram_dir(base_path, ",", 0, 640, width=0.4, wavelet_span=4, Fs=10, soft_max_c=1e-8)
     # base_path = "../../data/gamma_ray/"
     # to_scalogram_dir(base_path, ",", 0, 4096, width=2, wavelet_span=10, Fs=2, soft_max_c=1e-10)
     # base_path = "../../data/proportional_tubes_x_ray/"
