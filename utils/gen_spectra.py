@@ -19,6 +19,7 @@ import os
 
 #バターワースフィルタ（ローパス）
 def add_butter_worth_filter(x, sampling_rate, fp, fs, gpass, gstop, curve="linear"):
+    x=copy.copy(x)
     """
     ## Parameters
         - sampling_rate: 波形のサンプリングレート
@@ -69,6 +70,7 @@ def gauss(x, pos, amp=1, sigma=1):
     return amp * np.exp(-(x - pos)**2 / (2*sigma**2))
 
 def add_peak(signal, label, pos, amp=1, sigma=1, label_ci=1):
+    signal = copy.copy(signal)
     width = len(signal)
     height = np.max(signal, axis=0).astype(np.float32)
     n_pos = int(pos * width)
@@ -98,7 +100,7 @@ def add_peaks(base_signal, pos_list, a_list, sigma_list, label_ci=1):
     a_list = np.array(a_list)
     sigma_list = np.array(sigma_list)
     label = np.zeros(len(signal))
-    for i,p in enumerate(pos_list):
+    for i, _ in enumerate(pos_list):
         signal, label = add_peak(signal, label, pos_list[i], a_list[i], sigma_list[i], label_ci=label_ci)
     return signal, label
 
@@ -166,26 +168,33 @@ if __name__ == "__main__":
     # gen_dataset(1000, 2000, dataset_dir, 1, [10, 20], [5, 10], [1, 10], [0.1, 0.2], [1, 2], [0.1, 1.0], [10, 100], 
     #             [1, 3], [0.01, 0.99], [0.5, 2.0], [0.01, 0.1], [0.01, 0.05], seed_type="time")
     
-    filelist = os.listdir(dataset_dir)[:8]
+    filelist = os.listdir(dataset_dir)[:1000]
     
     signal = []
     label =[]
     
-    fig,axs = plt.subplots(2,4, figsize=(10,6))
-    print(len(filelist))
-    j=k=0
-    for i,file in enumerate(filelist):
-        data = np.load(dataset_dir+file)
-        signal.append(data["x"])
-        label.append(data["y"])
-        label_y = data["y"]
-        
-        if k > 0 and k %4 == 0:
-            j+=1
-            k =0
-        axs[j,k].plot(range(0, width, 1), data["x"])
-        axs[j,k].plot(np.where(label_y > 0)[0], data["x"][np.where(label_y > 0)], "x")    
-        
-        print(j,k)
-        k+=1
-    plt.show()
+    check_num = 20
+    for h in range(check_num):
+        j = k =0
+        files = filelist[h*8:(h+1)*8]
+        print(files)
+        fig,axs = plt.subplots(2,4, figsize=(10,6))
+        for i,file in enumerate(files):
+            data = np.load(dataset_dir+file)
+            signal.append(data["x"])
+            label.append(data["y"])
+            label_y = data["y"]
+            
+            if k > 0 and k %4 == 0:
+                j+=1
+                k =0
+            axs[j,k].plot(range(0, width, 1), data["x"])
+            axs[j,k].plot(np.where(label_y > 0)[0], data["x"][np.where(label_y > 0)], "x")    
+            
+            k+=1
+        # fig.canvas.draw()
+        # fig.canvas.flush_events()
+        # plt.pause(1)
+        plt.show()
+        # fig.clear()
+        plt.close()
