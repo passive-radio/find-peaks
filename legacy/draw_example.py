@@ -1,4 +1,4 @@
-from core.interactive import drag_guess
+from core.fitter_gui import drag_guess
 from utils.draw_test import draw_test
 
 if __name__ == "__main__":

@@ -5,6 +5,7 @@ from numpy import argmax
 import time
 import copy
 import os
+import json
 
 """
 # The module is to generate a set of simulated spectrums
@@ -21,6 +22,8 @@ import os
 def add_butter_worth_filter(x, sampling_rate, fp, fs, gpass, gstop, curve="linear"):
     x=copy.copy(x)
     """
+    ## Butterworth filter (lowpass filter) fuction
+    
     ## Parameters
         - sampling_rate: 波形のサンプリングレート
         - fp: 通過域端周波数[Hz]
@@ -86,7 +89,7 @@ def add_peak(signal, label, pos, amp=1, sigma=1, label_ci=1):
 
 def add_peaks(base_signal, pos_list, a_list, sigma_list, label_ci=1):
     """
-    ## Function which add optional number of peaks on base signal
+    ## Function which adds the optional number of peaks on the base signal
     
     ## Parametes
         - base_signal: base signal
@@ -107,6 +110,9 @@ def add_peaks(base_signal, pos_list, a_list, sigma_list, label_ci=1):
 def gen_dataset(spectrum_num, width, dataset_dir, label_ci, baseline_height_range, std_range, 
                 sprate_range, fp_range, fs_range, gpass_range, gstop_range, peak_num_range, pos_range,
                 amp_range, sigma_range, nsr_range, seed_type="time", seed=2, smoothing_curve="linear"):
+    if not os.path.exists(dataset_dir):
+        os.makedirs(dataset_dir, exist_ok=True)
+    
     if seed_type == "time":
         np.random.seed(int(time.time()))
     elif seed_type == "fix" and type(seed_type) == int:
@@ -146,28 +152,91 @@ def gen_dataset(spectrum_num, width, dataset_dir, label_ci, baseline_height_rang
             pass
     return
 
+def gen_dataset_v2(dict:dict):
+    spectrum_num = dict["spectrum_num"]
+    width = dict["width"]
+    label_ci = dict["label_ci"]
+    baseline_height_range = dict["baseline_height_range"]
+    std_range = dict["std_range"]
+    sprate_range = dict["sprate_range"]
+    fp_range = dict["fp_range"]
+    fs_range = dict["fs_range"]
+    gpass_range = dict["gpass_range"]
+    gstop_range = dict["gstop_range"]
+    peak_num_range = dict["peak_num_range"]
+    pos_range = dict["pos_range"]
+    amp_range = dict["amp_range"]
+    sigma_range = dict["sigma_range"]
+    nsr_range = dict["nsr_range"]
+    dataset_id = dict["dataset_id"]
+    dataset_dir_root = dict["dataset_dir"]
+    dataset_dir = dataset_dir_root+f"/{dataset_id}/"
+    
+    try:
+        seed_type = dict["seed_type"]
+    except:
+        seed_type = "time"
+    try:
+        smoothing_curve = dict["smoothing_curve"]
+    except:
+        smoothing_curve = "linear"
+    
+    if not os.path.exists(dataset_dir):
+        os.makedirs(dataset_dir, exist_ok=True)
+    
+    if seed_type == "time":
+        np.random.seed(int(time.time()))
+    elif seed_type == "fix":
+        try:
+            seed = dict["seed"]
+            np.random.seed(seed)
+        except:
+            np.random.seed(2)
+    
+    for i in range(spectrum_num):
+        try:
+            rnd = np.random.rand(12)
+            
+            baseline_height = baseline_height_range[0] + rnd[0]*(baseline_height_range[1]-baseline_height_range[0])
+            std = std_range[0] + rnd[1]*(std_range[1] - std_range[0])
+            sampling_rate = sprate_range[0] + rnd[2]*(sprate_range[1]-sprate_range[0])
+            fp = fp_range[0] + rnd[3]*(fp_range[1]-fp_range[0])
+            fs = fs_range[0] + rnd[4]*(fs_range[1]-fs_range[0])
+            gpass = gpass_range[0] + rnd[5]*(gpass_range[1]-gpass_range[0])
+            gstop = gstop_range[0] + rnd[6]*(gstop_range[1]-gstop_range[0])
+            peak_num = np.random.randint(peak_num_range[0], peak_num_range[1])
+            pos_list = np.random.rand(peak_num)
+            pos_list = pos_range[0] + pos_list*(pos_range[1]-pos_range[0])
+            amp_list = np.random.rand(peak_num)
+            amp_list = amp_range[0] + amp_list*(amp_range[1]-amp_range[0])
+            sigma_list = np.random.rand(peak_num)
+            sigma_list = sigma_range[0] + sigma_list*(sigma_range[1] - sigma_range[0])
+            nsr = nsr_range[0] + rnd[7]*(nsr_range[1]-nsr_range[0])
+            
+            baseline = add_baseline(width, baseline_height, std)
+            baseline = add_butter_worth_filter(baseline, sampling_rate, fp, fs, gpass, gstop, smoothing_curve)
+            signal, label = add_peaks(baseline, pos_list, amp_list, sigma_list, label_ci)
+            signal = add_noise(baseline, signal, nsr)
+            
+            np.savez(dataset_dir+f"signal{i}", x=signal, y=label)
+            
+            del_list = [pos_list, amp_list, sigma_list]
+            del rnd, baseline, signal, label, del_list
+        except:
+            pass
+    with open(dataset_dir_root+f"/config_{dataset_id}.json", 'w') as f:
+        json.dump(dict, f, indent=4)
+    return
+    
+
+
 if __name__ == "__main__":
     
     width=2000
     dataset_dir = "../../data/dataset/"
-    # baseline = add_baseline(width, 20, 10)
-    # baseline = add_butter_worth_filter(baseline, 10, 0.1, 1, 0.5, 100)
-    # signal, label = add_peaks(baseline, pos_list = [0.1, 0.98], a_list=[0.7,0.5], sigma_list=[0.02, 0.02],
-    #                             label_ci=2)
-    # signal = add_noise(baseline, signal, nsr=0.03)
-    
-    # np.savez(dataset_dir+"signal01", x=signal, y=label)
-    # data = np.load(dataset_dir+"signal01.npz")
-    # signal = data["x"]
-    # label = data["y"]
-    
-    # plt.plot(range(0, width, 1), baseline, "gray")
-    # plt.plot(range(0, width, 1), signal, "orange")
-    # plt.plot(np.where(label > 0)[0], signal[np.where(label > 0)], "x")
-    # plt.show()
-    # gen_dataset(1000, 2000, dataset_dir, 1, [10, 20], [5, 10], [1, 10], [0.1, 0.2], [1, 2], [0.1, 1.0], [10, 100], 
-    #             [1, 3], [0.01, 0.99], [0.5, 2.0], [0.01, 0.1], [0.01, 0.05], seed_type="time")
-    
+
+    gen_dataset(1000, 2000, dataset_dir, 1, [10, 20], [5, 10], [1, 10], [0.1, 0.2], [1, 2], [0.1, 1.0], [10, 100], 
+                [1, 3], [0.01, 0.99], [0.5, 2.0], [0.01, 0.1], [0.01, 0.05], seed_type="time")
     filelist = os.listdir(dataset_dir)[:1000]
     
     signal = []
