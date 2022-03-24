@@ -7,7 +7,7 @@ Python library for identifying the peaks using wavelet transformation.
 
     - An example of output  
         ![an example of output](img/wavelet_detection.png)
-        (each areas nested in blue are detected peaks)
+        (each blue areas represent the detected peaks)
 
 1. <b>Simulated spectrum dataset generation</b>
 
