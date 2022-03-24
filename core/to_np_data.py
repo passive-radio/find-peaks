@@ -12,11 +12,11 @@ sys.path.append('../')
 
 from labeling import put_labels
 
-def read_file(file, delimiter=None, headers=None, footers=None, errors="ignore", contains_x_axis=True):
+def read_file(file, delimiter=None, headers=None, footers=None, errors="ignore", contains_x_axis=True, encoding="utf-8"):
     data = []
     if headers == None:
         headers = -1
-    with open(file, "r", encoding="utf-8", errors=errors) as f:
+    with open(file, "r", encoding=encoding, errors=errors) as f:
         reader =csv.reader(f, delimiter=delimiter)
         for i, row in enumerate(reader):
             if footers != None and i >= footers:
@@ -25,7 +25,7 @@ def read_file(file, delimiter=None, headers=None, footers=None, errors="ignore",
                 continue
             elif headers < i :
                 data.append([col.replace('\n', '').replace(' ','') for col in row])
-    data = pd.DataFrame(data)
+    data = pd.DataFrame(data).astype(float)
     if len(data.columns) == 1 and not contains_x_axis:
         data = data.reset_index()
         data = data.set_axis(["x", "y"], axis="columns")

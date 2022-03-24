@@ -9,7 +9,7 @@ from matplotlib.artist import Artist
 
 
 from core.detection import find_peaks
-from core.preprocessing import read_data, reset_range
+from core.to_np_data import read_file, reset_range
 
 
 x_list = []
@@ -356,5 +356,5 @@ if __name__ == "__main__":
     #         x_list.append(float(row[0]))
     #         y_list.append(float(row[1]))
     
-    data= read_data(base_url + endpoint, 0, ',')
+    data= read_file(base_url + endpoint, 0, ',')
     drag_guess(data, 0)

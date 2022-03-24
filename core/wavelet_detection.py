@@ -1,17 +1,23 @@
 import os
+import sys
+from unittest import result
 
 import scipy.signal
 import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
 
+sys.path.append('utils/')
+sys.path.append('../')
+
 from to_np_data import read_file
+from utils.dataset import load_data
 import mother_func as mother
 
 
 def to_wavelet_by_morlet(signal,Fs, freqs, wavelet_span, width, convolve_mode="same"):
     """
-    連続ウェーブレット変換後のデータを格納する配列の作成
+    離散ウェーブレット変換後のデータを格納する配列の作成
     """
     Ts = 1/Fs
     wavelet_length = np.arange(-wavelet_span, wavelet_span, Ts)
@@ -102,8 +108,11 @@ def moving_average(data, distance):
 
 def to_scalogram(filepath, sep=",", headers=None, footers=None, errors="ignore", 
                     contains_x_axis=True, width=6, wavelet_span=2, Fs=100, soft_max_c=1):
-    data = read_file(filepath, ",", headers, footers, errors, contains_x_axis)
-    signal = data.y.astype(np.float64)
+    if os.path.splitext(filepath)[1] == ".npz":
+        signal, label = load_data(filepath)
+    else:
+        data = read_file(filepath, sep, headers, footers, errors, contains_x_axis)
+        signal = data.y.astype(np.float64)
     dt = 1          # サンプリング間隔
     convolve_mode = "same"
     
@@ -127,9 +136,9 @@ def to_scalogram(filepath, sep=",", headers=None, footers=None, errors="ignore",
     plt_scalogram(signal, dt, result_wavelet, peak_prob)
 
 def to_scalogram_dir(dir_path, sep=",", headers=None, footers=None, errors="ignore", 
-                    contains_x_axis=True, width=6, wavelet_span=2, Fs=100, soft_max_c=1):
+                    contains_x_axis=True, width=6, wavelet_span=2, Fs=100, soft_max_c=1, num_sort_pos:int=6):
     filelist = os.listdir(dir_path)
-    filelist = sorted(filelist, key=lambda x: int(os.path.splitext(os.path.basename(x))[0][15:]))
+    filelist = sorted(filelist, key=lambda x: int(os.path.splitext(os.path.basename(x))[0][num_sort_pos:]))
     for file in filelist:
         to_scalogram(dir_path+file, sep, headers, footers, errors,
                         contains_x_axis,width, wavelet_span, Fs, soft_max_c)

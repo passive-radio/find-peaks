@@ -20,3 +20,4 @@ if __name__ == "__main__":
     
     plt.imshow(x_data[0])
     plt.show()
+    
