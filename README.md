@@ -1,5 +1,5 @@
 # <b>Find Peaks</b>
-Python library for identifying the peaks using wavelet transformation.
+Python library for identifying the peaks using wavelet transform.
 
 ## <b>Features</b>
 
