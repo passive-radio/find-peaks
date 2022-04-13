@@ -20,6 +20,7 @@ from scipy import signal
 import matplotlib.pyplot as plt
 import numpy as np
 from numpy import argmax
+from tqdm import tqdm
 
 #バターワースフィルタ（ローパス）
 def add_butterworth_filter(x, sampling_rate, fp, fs, gpass, gstop):
@@ -75,7 +76,15 @@ def add_noise(baseline, signal, nsr):
     max_pos = argmax(signal,axis=0)
     signal_amp = signal[max_pos] - baseline[max_pos]
     noise_scale = nsr * signal_amp
-    np_noise = np.random.normal(0, noise_scale, (len(signal)))
+    
+    if noise_scale < 0:
+        noise_scale = np.abs(noise_scale)
+    
+    try: 
+        np_noise = np.random.normal(0, noise_scale, (len(signal)))
+    except ValueError as e:
+        np.random.seed(int(time.time()))
+        np_noise = np.random.normal(0, noise_scale, (len(signal)))
     return signal+np_noise
 
 def gauss(x, pos, amp=1, sigma=1):
@@ -222,7 +231,11 @@ def gen_dataset_v2(dict:dict):
         except:
             np.random.seed(2)
     num_list = []
-    for i in range(spectrum_num):
+    for i in tqdm(range(spectrum_num)):
+        
+        if i >= spectrum_num/2:
+            np.random.seed(int(time.time()))
+        
         # try:
         rnd = np.random.rand(12)
         
@@ -291,8 +304,10 @@ def visualize_dataset(dataset_dir, num, nrows, ncols, figsize=(10,6), true_peak_
             axs[l,k].plot(range(0, width, 1), data["x"])
             axs[l,k].plot(np.where(data["y"] > 0)[0], data["x"][np.where(data["y"] > 0)], "x")    
             
-            if true_peak_nums != None:
+            try:
                 axs[l,k].set_title(true_peak_nums[n])
+            except:
+                print("dataset doesn't have true label")
             k +=1
             n +=1
         

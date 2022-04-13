@@ -9,7 +9,7 @@ import csv
 
 sys.path.append('utils/')
 sys.path.append('../')
-
+sys.path.append('core/')
 from labeling import put_labels
 
 def read_file(file, delimiter=None, headers=None, footers=None, errors="ignore", contains_x_axis=True, encoding="utf-8"):

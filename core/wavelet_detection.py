@@ -9,6 +9,7 @@ import pandas as pd
 
 sys.path.append('utils/')
 sys.path.append('../')
+sys.path.append("core/")
 
 from to_np_data import read_file
 from utils.dataset import load_data
@@ -56,9 +57,10 @@ def to_cwt(signal, Fs: int, dt=1, wavelet_span=2, fmax=None, mother_func="morlet
     return np_arr_wavelet
     
 
-def plt_scalogram(signal, dt, np_result, peak_prob):
+def plt_scalogram(signal, dt, np_result, peak_prob=None, freqs=None):
     
     N = len(signal)
+    dt=1    # temporary params!
     t = np.arange(0, N*dt, dt)
     try:
         fmax = np.max(signal)
@@ -66,14 +68,19 @@ def plt_scalogram(signal, dt, np_result, peak_prob):
         signal = signal.values
         fmax = np.max(signal)
     
+    fmax = np.max(freqs)
+    
     plt.rcParams['figure.figsize'] = (12, 6)
     fig = plt.figure()
     ax1 = fig.add_axes([0.1, 0.75, 0.7, 0.2])
     ax2 = fig.add_axes([0.1, 0.1, 0.7, 0.60], sharex=ax1)
     ax3 = fig.add_axes([0.83, 0.1, 0.03, 0.6])
-
+    
+    
     ax1.plot(t, signal, 'k')
-    ax1.plot(peak_prob, signal[peak_prob], "x")
+    if peak_prob != None:
+        print(peak_prob)
+        ax1.plot(peak_prob, signal[peak_prob], "x")
 
     img = ax2.imshow(np.flipud(np_result), extent=[0, N, 0, fmax],
                         aspect='auto', interpolation='nearest')
@@ -105,6 +112,37 @@ def moving_average(data, distance):
     centered_ma[len(data)-1-distance:len(data)] = data.rolling(window=distance).mean().shift(distance)[len(data)-1-distance:len(data)]
     
     return centered_ma.to_numpy()
+
+def wavelet_transform(signal, a, deltab, Fs, width, mother):
+    from core.mother_func import mother_wavelet
+    from tqdm import tqdm
+    
+    freqs = np.fft.fftfreq(len(signal), 1/Fs)
+    freqs = np.sort(freqs[np.where(freqs > 0)])
+    
+    print(freqs[-1], freqs[0])
+    origin_shape=len(signal)
+    
+    if deltab > 1:
+        signal = signal.reshape(int(len(signal)/deltab),-1).mean(axis=1)
+    else:
+        signal = signal.repeat(int(1/deltab), axis=0)
+    
+    mothers = mother_wavelet(a, deltab, width)
+    scalogram = np.zeros([len(freqs), origin_shape])
+    length = len(freqs)
+    for i, freq in enumerate(tqdm(freqs)):
+        wab = mothers.mother_func(mother, freq)
+        tab = np.convolve(signal, wab, "same")
+        
+        if deltab > 1:
+            tab = tab.repeat(deltab, axis=0)
+        else:
+            tab = tab.reshape(int(len(tab)*deltab),-1).mean(axis=1)
+        scalogram[length-1-i,:] = tab
+        scalogram[length-1-i,:] = np.power((2*scalogram[length-1-i,:]*deltab),2)
+    
+    return scalogram
 
 def to_scalogram(filepath, sep=",", headers=None, footers=None, errors="ignore", 
                     contains_x_axis=True, width=6, wavelet_span=2, Fs=100, soft_max_c=1):
