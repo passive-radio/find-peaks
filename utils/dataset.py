@@ -20,7 +20,9 @@ from scipy import signal
 import matplotlib.pyplot as plt
 import numpy as np
 from numpy import argmax
+from numpy.random import PCG64, PCG64DXSM
 from tqdm import tqdm
+
 
 #バターワースフィルタ（ローパス）
 def add_butterworth_filter(x, sampling_rate, fp, fs, gpass, gstop):
@@ -59,20 +61,21 @@ def add_butterworth_filter(x, sampling_rate, fp, fs, gpass, gstop):
     y = signal.filtfilt(b, a, x)                  #信号に対してフィルタをかける
     return y                                      #フィルタ後の信号を返す
 
-def add_baseline(width, baseline_height, std):
-    baseline = np.random.normal(baseline_height, std, (width))
+def add_baseline(width, baseline_height, std, rnd_gen):
+    rnd_gen = rnd_gen
+    baseline = rnd_gen.normal(baseline_height, std, (width))
     # np_lowpassed = lowpass(np_rand,40, 1, 2, 3, 40)
     return baseline
 
-def add_noise(baseline, signal, nsr):
+def add_noise(baseline, signal, nsr, rnd_gen):
     '''
     ## function which adds noise on signal
-    
     ## Parameters
         - baseline: baseline sequence data
         - signal: signal sequence data
         - nsr: noise signal ratio (noise/signal)
     '''
+    rnd_gen = rnd_gen
     max_pos = argmax(signal,axis=0)
     signal_amp = signal[max_pos] - baseline[max_pos]
     noise_scale = nsr * signal_amp
@@ -80,11 +83,8 @@ def add_noise(baseline, signal, nsr):
     if noise_scale < 0:
         noise_scale = np.abs(noise_scale)
     
-    try: 
-        np_noise = np.random.normal(0, noise_scale, (len(signal)))
-    except ValueError as e:
-        np.random.seed(int(time.time()))
-        np_noise = np.random.normal(0, noise_scale, (len(signal)))
+    np_noise = rnd_gen.normal(0, noise_scale, (len(signal)))
+    
     return signal+np_noise
 
 def gauss(x, pos, amp=1, sigma=1):
@@ -138,14 +138,21 @@ def add_peaks(base_signal, pos_list, a_list, sigma_list, label_ci=1):
                         pos_list[i] = 1
         # print(f"{pos_list_original} -> {pos_list}")
         if pos_list_original.all() != pos_list.all():
-            print(f"{pos_list_original} -> {pos_list}")
+            """
+            logging function should be added here!
+            instead of printing out on terminal
+            
+            logger.info()
+            logger.warning()
+            """
+            # print(f"{pos_list_original} -> {pos_list}")
     for i, _ in enumerate(pos_list):
         signal, label, raw_signal = add_peak(signal, raw_signal, label, pos_list[i], a_list[i], sigma_list[i], label_ci=label_ci)
     return signal, label, len(pos_list)
 
-def gen_dataset(spectrum_num, width, dataset_dir, label_ci, baseline_height_range, std_range, 
+def gen_dataset_old(spectrum_num, width, dataset_dir, label_ci, baseline_height_range, std_range, 
                 sprate_range, fp_range, fs_range, gpass_range, gstop_range, peak_num_range, pos_range,
-                amp_range, sigma_range, nsr_range, seed_type="time", seed=2):
+                amp_range, sigma_range, stn_range, seed_type="time", seed=2):
     if not os.path.exists(dataset_dir):
         os.makedirs(dataset_dir, exist_ok=True)
     
@@ -158,38 +165,55 @@ def gen_dataset(spectrum_num, width, dataset_dir, label_ci, baseline_height_rang
     num_list = []
     for i in range(spectrum_num):
         try:
-            rnd = np.random.rand(12)
             
-            baseline_height = baseline_height_range[0] + rnd[0]*(baseline_height_range[1]-baseline_height_range[0])
-            std = std_range[0] + rnd[1]*(std_range[1] - std_range[0])
-            sampling_rate = sprate_range[0] + rnd[2]*(sprate_range[1]-sprate_range[0])
-            fp = fp_range[0] + rnd[3]*(fp_range[1]-fp_range[0])
-            fs = fs_range[0] + rnd[4]*(fs_range[1]-fs_range[0])
-            gpass = gpass_range[0] + rnd[5]*(gpass_range[1]-gpass_range[0])
-            gstop = gstop_range[0] + rnd[6]*(gstop_range[1]-gstop_range[0])
-            peak_num = np.random.randint(peak_num_range[0], peak_num_range[1])
-            pos_list = np.random.rand(peak_num)
-            pos_list = pos_range[0] + pos_list*(pos_range[1]-pos_range[0])
-            amp_list = np.random.rand(peak_num)
-            amp_list = amp_range[0] + amp_list*(amp_range[1]-amp_range[0])
-            sigma_list = np.random.rand(peak_num)
+            rnd_params_gen = np.random.Generator(PCG64(int(time.time())))
+            rnd_params = rnd_params_gen.random.rand(12)
+            
+            peak_num = rnd_params_gen.random.randint(peak_num_range[0], peak_num_range[1]+1)
+            pos_list = rnd_params_gen.random.rand(peak_num)
+            pos_list = pos_range[0] + pos_list*(pos_range[1] - pos_range[0])
+            amp_list = rnd_params_gen.random.rand(peak_num)
+            amp_list = amp_range[0] + amp_list*(amp_range[1] - amp_range[0])
+            sigma_list = rnd_params_gen.random.rand(peak_num)
             sigma_list = sigma_range[0] + sigma_list*(sigma_range[1] - sigma_range[0])
-            nsr = nsr_range[0] + rnd[7]*(nsr_range[1]-nsr_range[0])
             
-            baseline = add_baseline(width, baseline_height, std)
+            baseline_height = baseline_height_range[0] + rnd_params[0]*(baseline_height_range[1]-baseline_height_range[0])
+            std = std_range[0] + rnd_params[1]*(std_range[1] - std_range[0])
+            sampling_rate = sprate_range[0] + rnd_params[2]*(sprate_range[1]-sprate_range[0])
+            fp = fp_range[0] + rnd_params[3]*(fp_range[1]-fp_range[0])
+            fs = fs_range[0] + rnd_params[4]*(fs_range[1]-fs_range[0])
+            gpass = gpass_range[0] + rnd_params[5]*(gpass_range[1]-gpass_range[0])
+            gstop = gstop_range[0] + rnd_params[6]*(gstop_range[1]-gstop_range[0])
+            nsr = stn_range[0] + rnd_params[7]*(stn_range[1]-stn_range[0])
+            
+            baseline = add_baseline(width, baseline_height, std, rnd_params_gen)
             baseline = add_butterworth_filter(baseline, sampling_rate, fp, fs, gpass, gstop)
             signal, label, n_peaks = add_peaks(baseline, pos_list, amp_list, sigma_list, label_ci)
             signal = add_noise(baseline, signal, nsr)
             num_list.append(n_peaks)
             np.savez(dataset_dir+f"signal{i}", x=signal, y=label)
             
-            del_list = [pos_list, amp_list, sigma_list]
-            del rnd, baseline, signal, label, del_list
         except:
             pass
     return np.array(num_list)
 
-def gen_dataset_v2(dict:dict):
+def gen_dataset_v2_old(dict:dict, log_conf_path:str = None):
+    
+    '''
+    # function to generate simulated spectra dataset
+    ## params
+        - dict: dataset generation params.
+        - log_conf_path: path to the log file which store log during datset generation.
+    ## Process to make simulated spectrum
+    1. add baseline
+    1. apply butterworth filter
+    1. add peaks
+    1. add noise
+    '''
+    
+    if log_conf_path is None:
+        raise
+    
     spectrum_num = dict["spectrum_num"]
     width = dict["width"]
     label_ci = dict["label_ci"]
@@ -204,16 +228,22 @@ def gen_dataset_v2(dict:dict):
     pos_range = dict["pos_range"]
     amp_range = dict["amp_range"]
     sigma_range = dict["sigma_range"]
-    nsr_range = dict["nsr_range"]
+    stn_range = dict["stn_range"]
     dataset_id = dict["dataset_id"]
     dataset_dir_root = dict["dataset_dir"]
     dataset_dir = dataset_dir_root+f"/{dataset_id}/"
     height_limit = dict["height_limit"]
+    seed = dict["seed"]
     
-    try:
-        seed_type = dict["seed_type"]
-    except:
-        seed_type = "time"
+    import json
+    from logging import getLogger, config
+    
+    with open(log_conf_path, 'r') as f:
+        log_conf = json.load(f)
+        log_conf["handlers"]["fileHandler"]["filename"] = f"../log/dataset_gen_log_{dataset_id}"
+    config.dictConfig(log_conf)
+    logger = getLogger(__name__)
+    logger.info("simulated spectra dataset generation just started!")
     
     if not os.path.exists(dataset_dir):
         os.makedirs(dataset_dir, exist_ok=True)
@@ -222,70 +252,56 @@ def gen_dataset_v2(dict:dict):
         shutil.rmtree(dataset_dir)
         os.makedirs(dataset_dir, exist_ok=True)
     
-    if seed_type == "time":
-        np.random.seed(int(time.time()))
-    elif seed_type == "fix":
-        try:
-            seed = dict["seed"]
-            np.random.seed(seed)
-        except:
-            np.random.seed(2)
+    if seed == "time":
+        rnd_params_gen = np.random.Generator(PCG64(int(time.time())))
+    else:
+        rnd_params_gen = np.random.Generator(PCG64(int(dict["seed"])))
+    
     num_list = []
+    
     for i in tqdm(range(spectrum_num)):
         
-        if i >= spectrum_num/2:
-            np.random.seed(int(time.time()))
-        
-        # try:
-        rnd = np.random.rand(12)
-        
-        baseline_height = baseline_height_range[0] + rnd[0]*(baseline_height_range[1]-baseline_height_range[0])
-        std = std_range[0] + rnd[1]*(std_range[1] - std_range[0])
-        sampling_rate = sprate_range[0] + rnd[2]*(sprate_range[1]-sprate_range[0])
-        fp = fp_range[0] + rnd[3]*(fp_range[1]-fp_range[0])
-        fs = fs_range[0] + rnd[4]*(fs_range[1]-fs_range[0])
-        gpass = gpass_range[0] + rnd[5]*(gpass_range[1]-gpass_range[0])
-        gstop = gstop_range[0] + rnd[6]*(gstop_range[1]-gstop_range[0])
-        peak_num = np.random.randint(peak_num_range[0], peak_num_range[1])
-        pos_list = np.random.rand(peak_num)
-        pos_list = pos_range[0] + pos_list*(pos_range[1]-pos_range[0])
-        amp_list = np.random.rand(peak_num)
-        amp_list = amp_range[0] + amp_list*(amp_range[1]-amp_range[0])
-        amp_list_np = np.array(amp_list)
-        xx, yy = np.meshgrid(amp_list_np, amp_list_np)
-        # try:
-        #     distances = np.linalg.norm(amp_list_np[xx]-amp_list_np[yy], axis=2)
-        #     distances = np.fill_diagonal(distances, np.nan)
-        #     min_distance = np.nanmin(distances)
-        # except Exception as e:
-        #     print(e)
-        sigma_list = np.random.rand(peak_num)
+        rnd_params = rnd_params_gen.random(12)
+        peak_num = rnd_params_gen.integers(low=peak_num_range[0], high=peak_num_range[1]+1)
+        pos_list = rnd_params_gen.random(peak_num)
+        pos_list = pos_range[0] + pos_list*(pos_range[1] - pos_range[0])
+        amp_list = rnd_params_gen.random(peak_num)
+        amp_list = amp_range[0] + amp_list*(amp_range[1] - amp_range[0])
+        sigma_list = rnd_params_gen.random(peak_num)
         sigma_list = sigma_range[0] + sigma_list*(sigma_range[1] - sigma_range[0])
-        nsr = nsr_range[0] + rnd[7]*(nsr_range[1]-nsr_range[0])
         
-        baseline = add_baseline(width, baseline_height, std)
+        baseline_height = baseline_height_range[0] + rnd_params[0]*(baseline_height_range[1]-baseline_height_range[0])
+        std = std_range[0] + rnd_params[1]*(std_range[1] - std_range[0])
+        sampling_rate = sprate_range[0] + rnd_params[2]*(sprate_range[1]-sprate_range[0])
+        fp = fp_range[0] + rnd_params[3]*(fp_range[1]-fp_range[0])
+        fs = fs_range[0] + rnd_params[4]*(fs_range[1]-fs_range[0])
+        gpass = gpass_range[0] + rnd_params[5]*(gpass_range[1]-gpass_range[0])
+        gstop = gstop_range[0] + rnd_params[6]*(gstop_range[1]-gstop_range[0])
+        nsr = stn_range[0] + rnd_params[7]*(stn_range[1]-stn_range[0])
+        
+        baseline = add_baseline(width, baseline_height, std, rnd_params_gen)
         baseline = add_butterworth_filter(baseline, sampling_rate, fp, fs, gpass, gstop)
         signal, label, n_peaks = add_peaks(baseline, pos_list, amp_list, sigma_list, label_ci)
-        signal = add_noise(baseline, signal, nsr)
+        signal = add_noise(baseline, signal, nsr, rnd_params_gen)
+        num_list.append(n_peaks)
         
-        heigth_current = np.max(signal)
-        signal *= height_limit/heigth_current
+        # heigth_current = np.max(signal)
+        # signal *= height_limit/heigth_current
         
         np.savez(dataset_dir+f"signal{i}", x=signal, y=label)
         num_list.append(n_peaks)
-        del_list = [pos_list, amp_list, sigma_list]
-        del rnd, baseline, signal, label, del_list
-        # except:
-        #     pass
     with open(dataset_dir_root+f"/config_{dataset_id}.json", 'w') as f:
         json.dump(dict, f, indent=4)
     return dataset_dir, np.array(num_list)
 
-def visualize_dataset(dataset_dir, num, nrows, ncols, figsize=(10,6), true_peak_nums=None):
+def visualize_dataset(dataset_dir:str, nrows:int, ncols:int, figsize=(10,6), num:int=None, true_peak_nums=None, start:int=None, end:int=None):
     
     filelist = os.listdir(dataset_dir)
-    filelist = sorted(filelist, key=lambda x: int(os.path.splitext(os.path.basename(x))[0][6:]))[:num]
-    print(true_peak_nums)
+    if end is None:
+        filelist = sorted(filelist, key=lambda x: int(os.path.splitext(os.path.basename(x))[0][6:]))[:num]
+    else: 
+        filelist = sorted(filelist, key=lambda x: int(os.path.splitext(os.path.basename(x))[0][6:]))[start:end]
+        num = end-start
     l = n = 0
     for i in range(math.ceil(num/(nrows*ncols))):
         filelist_i = filelist[(nrows*ncols)*i:(nrows*ncols)*(i+1)]
@@ -307,13 +323,14 @@ def visualize_dataset(dataset_dir, num, nrows, ncols, figsize=(10,6), true_peak_
             try:
                 axs[l,k].set_title(true_peak_nums[n])
             except:
-                print("dataset doesn't have true label")
+                pass
+                # print("dataset doesn't have true label")
             k +=1
             n +=1
         
         plt.show()
         plt.close()
-        
+    
 def load_data(filepath):
     data = np.load(filepath)
     signal = data["x"]
@@ -325,4 +342,4 @@ if __name__ == "__main__":
     file = "../config/dataset.json"
     with open(file) as f:
         settings = json.load(f)
-    gen_dataset_v2(settings)
+    gen_dataset_v2_old(settings)
