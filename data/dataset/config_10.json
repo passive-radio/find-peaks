@@ -1,0 +1,58 @@
+{
+    "spectrum_num": 100,
+    "width": 1000,
+    "label_ci": 2,
+    "baseline_height_range": [
+        10,
+        20
+    ],
+    "std_range": [
+        4,
+        8
+    ],
+    "sprate_range": [
+        1,
+        3
+    ],
+    "fp_range": [
+        0.0001,
+        0.001
+    ],
+    "fs_range": [
+        0.01,
+        0.1
+    ],
+    "gpass_range": [
+        -1,
+        -0.1
+    ],
+    "gstop_range": [
+        -30,
+        -10
+    ],
+    "peak_num_range": [
+        0,
+        3
+    ],
+    "pos_range": [
+        0.001,
+        0.999
+    ],
+    "amp_range": [
+        10,
+        100
+    ],
+    "sigma_range": [
+        10,
+        20
+    ],
+    "stn_range": [
+        1,
+        2
+    ],
+    "dataset_id": 10,
+    "seed": 1650768115,
+    "dataset_dir": "../data/dataset/",
+    "height_limit": 1000,
+    "reset_dataset": true
+}
