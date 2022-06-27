@@ -1,0 +1,22 @@
+2022-04-18 12:36:56,495 Signal.generator:198 sequence_generator [INFO]: simulated spectra dataset generation just started!
+2022-04-18 12:38:16,082 Signal.generator:198 sequence_generator [INFO]: simulated spectra dataset generation just started!
+2022-04-18 12:38:16,316 Signal.generator:257 sequence_generator [INFO]: Generation process is done!
+2022-04-18 12:38:37,971 Signal.generator:198 sequence_generator [INFO]: simulated spectra dataset generation just started!
+2022-04-18 12:38:38,396 Signal.generator:257 sequence_generator [INFO]: Generation process normaly finished!
+2022-04-18 12:42:00,075 Signal.generator:198 sequence_generator [INFO]: simulated spectra dataset generation just started!
+2022-04-18 12:42:00,272 Signal.generator:257 sequence_generator [INFO]: Generation process normaly finished!
+2022-04-18 12:42:39,085 Signal.generator:198 sequence_generator [INFO]: simulated spectra dataset generation just started!
+2022-04-18 12:42:39,291 Signal.generator:257 sequence_generator [INFO]: Generation process normaly finished!
+2022-04-18 12:42:40,976 utils.dataset:246 gen_dataset_v2 [INFO]: simulated spectra dataset generation just started!
+2022-04-18 12:44:23,938 Signal.generator:198 sequence_generator [INFO]: simulated spectra dataset generation just started!
+2022-04-18 12:44:24,131 Signal.generator:257 sequence_generator [INFO]: Generation process normaly finished!
+2022-04-18 12:44:26,572 utils.dataset:246 gen_dataset_v2 [INFO]: simulated spectra dataset generation just started!
+2022-04-18 12:44:31,347 Signal.generator:198 sequence_generator [INFO]: simulated spectra dataset generation just started!
+2022-04-18 12:44:31,536 Signal.generator:257 sequence_generator [INFO]: Generation process normaly finished!
+2022-04-18 12:44:37,200 utils.dataset:246 gen_dataset_v2 [INFO]: simulated spectra dataset generation just started!
+2022-04-24 10:37:26,052 Signal.generator:177 sequence_generator [INFO]: simulated spectra dataset generation just started!
+2022-04-24 10:37:26,546 Signal.generator:236 sequence_generator [INFO]: Generation process normaly finished!
+2022-04-24 11:16:50,828 Signal.generator:177 sequence_generator [INFO]: simulated spectra dataset generation just started!
+2022-04-24 11:16:51,013 Signal.generator:236 sequence_generator [INFO]: Generation process normaly finished!
+2022-04-24 11:30:27,375 Signal.generator:177 sequence_generator [INFO]: simulated spectra dataset generation just started!
+2022-04-24 11:30:27,554 Signal.generator:241 sequence_generator [INFO]: Generation process normaly finished!
