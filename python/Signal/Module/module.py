@@ -1,6 +1,14 @@
 from abc import ABCMeta, abstractclassmethod, abstractmethod
 
 class Generator(metaclass=ABCMeta):
+    """
+    # Parent class of the simluated signal generator
+    every simluated signal generator has to inherit Generator as its parent class, thus newly created classes must have these methods below.  
+    - add_baseline
+    - add_noise
+    - add_peaks
+    - add_filter (can be a smoother of the baseline or noise low pass filter or something type deal.)
+    """
     
     def __init__(self) -> None:
         pass

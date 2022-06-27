@@ -1,9 +1,13 @@
 import time
+import json
+import sys
+
 import scipy.signal
 import numpy as np
 from numpy.random import PCG64
-from module.module import Generator
-from module.functions import gauss
+
+from .Module.module import Generator
+from .Module.functions import gauss, butterworth_filter, chebyshev_filter
 
 class signal_butterworth_smooothed_baseline(Generator):
     '''
@@ -21,17 +25,32 @@ class signal_butterworth_smooothed_baseline(Generator):
         self.rnd_gen = np.random.Generator(PCG64(int(time.time())))
         self.signal = np.zeros(length)
         self.baseline = None
+        self.length = length
+        self.peak_pos = []
         pass
     
-    def add_peaks(self, pos, amp, sigma):
+    def add_peaks(self, pos, amp, sigma, label_ci:float = 2):
         
         if len(pos) != len(amp) or len(pos) != len(sigma) or len(amp) != len(sigma):
             raise
             
         pos = super().relocated_peaks(pos, sigma)
         for i in range(len(pos)):
+            # print(amp[i], np.max(self.add_peak(pos[i], amp[i], sigma[i])))
             self.signal = self.signal + self.add_peak(pos[i], amp[i], sigma[i])
+            
+            if 3 < label_ci:
+                label_ci = 3
+                
+            start = int(pos[i] - sigma[i]*label_ci)
+            end = int(pos[i] + sigma[i]*label_ci)
+            if start < 0:
+                start = 0
+            elif self.length - 2 < end:
+                end = int(self.length - 1)
+            self.peak_pos.append([start, int(pos[i]), end])
         
+        self.peak_num = len(pos)
         return self
     
     def add_baseline(self, length:int, height:float, std:float, sp, fp, fs, gpass, gstop):
@@ -44,7 +63,6 @@ class signal_butterworth_smooothed_baseline(Generator):
     def add_filter(self, signal_val, sampling_rate, fp, fs, gpass, gstop):
         """
         ## Butterworth filter (lowpass filter) fuction
-        
         ## Parameters
             - signal_val: signal
             - sampling_rate: 波形のサンプリングレート
@@ -55,27 +73,7 @@ class signal_butterworth_smooothed_baseline(Generator):
             - curve: 減衰関数  
                 - linear: 線形減衰
         """
-        gpass *= -1
-        gstop *= -1
-        sampling_time = len(signal_val)          #サンプリング時間: スペクトルデータの時間    
-        fn = sampling_rate / 2                        #ナイキスト周波数
-        wp = fp / fn                                  #ナイキスト周波数で通過域端周波数を正規化
-        ws = fs / fn                                  #ナイキスト周波数で阻止域端周波数を正規化
-        N, Wn = scipy.signal.buttord(wp, ws, gpass, gstop)  #オーダーとバターワースの正規化周波数を計算
-        
-        # w = fp / fn # Normalize the frequency
-        # b, a = signal.butter(5, w, 'low')
-        # if N < 0:
-        #     N = 0
-        b, a = scipy.signal.butter(N, Wn, "low")            #フィルタ伝達関数の分子と分母を計算
-        # if a.any()<2:
-        #     a=2
-        # if type(a) == int or len(a) < 2:
-        #     a_temp = copy.copy(a)
-        #     a = np.zeros((2))
-        #     a[0:2] = a_temp
-        filtered = scipy.signal.filtfilt(b, a, signal_val)                  #信号に対してフィルタをかける
-        return filtered                                      #フィルタ後の信号を返す
+        return butterworth_filter(signal_val, sampling_rate, fp, fs, gpass, gstop)
     
     def add_noise(self, signal:np.ndarray = None, length:int = None, max_height:float = None, stn: float = None, sigma:float = 1.0):
         
@@ -105,9 +103,8 @@ class signal_butterworth_smooothed_baseline(Generator):
         return self
     
     def add_peak(self, pos, amp, sigma):
-        width = len(self.signal)
-        peak_value = gauss(np.arange(0, width), pos, amp, sigma)
-        self.signal = self.signal + peak_value
+        peak_value = gauss(np.arange(0, self.length, 1), pos, amp, sigma)
+        # self.signal = self.signal + peak_value
         return peak_value
     
     @property
@@ -116,24 +113,38 @@ class signal_butterworth_smooothed_baseline(Generator):
     @property
     def get_baseline(self):
         return self.baseline
-
-if __name__ == "__main__":
-    import matplotlib.pyplot as plt
+    @property
+    def get_peak_pos(self):
+        return self.peak_pos
+    @property
+    def get_peak_num(self):
+        return self.peak_num
     
-    fig, axs = plt.subplots(2, 1, figsize=(10,6))
+    def init(self):
+        self.signal = np.zeros(self.length)
+        self.baseline = np.zeros(self.length)
+        self.peak_num = None
+        self.peak_pos = []
+        
+class signal_chebyshev_smooothed_baseline(signal_butterworth_smooothed_baseline):
+    '''
+    # signal generator using butterwoth filter as the noise smoother
     
-    signal = signal_butterworth_smooothed_baseline(length=1000)
+    ## Process
+    1. add baseline
+        1. add noise signal
+        1. smooth the noise signal by lowpassfilter(for here, it's butterworth filter)
+    1. add peaks
+    1. add noise
+    '''
     
-    signal = signal.add_baseline(1000, 10, 0.1, 0.4, 4e-4, 4e-2, -0.5, -10)
-    signal_val = signal.get_signal
-    axs[0].plot(signal_val)
+    def __init__(self, length:int=None) -> None:
+        self.rnd_gen = np.random.Generator(PCG64(int(time.time())))
+        self.signal = np.zeros(length)
+        self.baseline = None
+        self.length = length
+        self.peak_pos = []
+        pass
     
-    amp = [2, 2]
-    pos = [400, 360]
-    sigma = [10, 10]
-    signal = signal.add_peaks(pos, amp, sigma)
-    signal = signal.add_noise(stn=20)
-    signal_val = signal.get_signal
-    axs[1].plot(signal_val)
-    
-    plt.show()
+    def add_filter(self, signal_data, sampling_rate, fp, fs, gpass, gstop):
+        return chebyshev_filter(signal_data, sampling_rate, fp, fs, gpass, gstop)
