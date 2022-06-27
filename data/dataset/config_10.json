@@ -1,7 +1,7 @@
 {
-    "spectrum_num": 100,
+    "spectrum_num": 4,
     "width": 1000,
-    "label_ci": 2,
+    "label_ci": 1,
     "baseline_height_range": [
         10,
         20
@@ -31,8 +31,8 @@
         -10
     ],
     "peak_num_range": [
-        0,
-        3
+        2,
+        4
     ],
     "pos_range": [
         0.001,
@@ -51,7 +51,7 @@
         2
     ],
     "dataset_id": 10,
-    "seed": 1650768115,
+    "seed": 1656296830,
     "dataset_dir": "../data/dataset/",
     "height_limit": 1000,
     "reset_dataset": true
