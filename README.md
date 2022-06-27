@@ -11,6 +11,8 @@ Python library for identifying the peaks using wavelet transform.
 
 1. <b>Simulated spectrum dataset generation</b>
 
+    [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/passive-radio/find-peaks/blob/develop/python/sample_data_gen.ipynb)
+
 1. <b>Peak identification for labeling existing data on GUI</b>
 
     You can obtain x,y of each peaks on each spectrums by [interactive.py](interactive.py)
