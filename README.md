@@ -37,4 +37,4 @@ Python library for identifying the peaks using wavelet transform.
 
 1. <b>GUI application</b>
 
-    After our peak identification algorhythms gain its enough accuracy and generalization to unseen data, then we will make GUI application that enables you to analyze spectrum data without coding anything.
+![Planned GUI application system](app_system.png)
